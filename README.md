@@ -102,7 +102,7 @@ substitutor.subMulti(template, Map(
 	"pro_sub" -> "he",
 	"pro_pos" -> "his",
 	"weapon" -> "sword",
-	"monster_number" -> 5,
+	"monster_number" -> 1,
 	"monster" -> "dragon"))
 
 >>> "He steps into the gloomy dungeon, drawing his sword at the ready. \nSuddenly, he is ambushed by a lone dragon!"

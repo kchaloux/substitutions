@@ -132,7 +132,7 @@ substitutor.sub(template)
 To Build
 ========
 
-The **substitutions** library is built with sbt *(version 0.12.\*)*. Simply clone the latest version of **substitutions** from github, navigate to the project folder, and use the commands:
+The **substitutions** library is built with sbt *(version 0.12._)*. Simply clone the latest version of **substitutions** from github, navigate to the project folder, and use the commands:
 
     > sbt
     > compile

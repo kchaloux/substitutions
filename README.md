@@ -45,7 +45,7 @@ substitutor.sub(template)
 ```scala
 val template = "You're feeling @{if(@{hungry}) [hungry|full]}"
 substitutor.subMulti(template, Map("hungry" -> true))
-----
+
 >>> "You're feeling hungry"
 ```
 

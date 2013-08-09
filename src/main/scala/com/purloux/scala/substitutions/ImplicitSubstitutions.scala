@@ -6,9 +6,6 @@ package com.purloux.scala.substitutions
 object ImplicitSubstitutions {
   import scala.language.postfixOps
 
-  /** Default implicit substitutor */
-  implicit val substitutor = new Substitutor()
-
   /** Extend string objects with substitution methods 
    *
    *  @param template implicit string to be substituted

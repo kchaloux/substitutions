@@ -149,4 +149,7 @@ object Substitutor {
    *  @param seed pseudo-random-number-generator seed
    */
   def initializeWithSeed(seed : Long) = new Substitutor(new Random(seed))
+
+    /** Default implicit substitutor */
+  implicit val substitutor = new Substitutor()
 }

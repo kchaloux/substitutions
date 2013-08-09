@@ -1,5 +1,11 @@
 package com.purloux.scala.substitutions
 
+/** Type aliases for command functions */
+object CommandTypes {
+  type Command = Seq[String] => String
+  type ParamCommand = Seq[String] => Seq[String] => String
+}
+
 /** Defines commands used to manipulate text arguments */
 object SubstitutionCommands {
   import com.purloux.scala.utils.SafeOperations._

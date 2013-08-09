@@ -4,7 +4,7 @@ import org.scalatest.FlatSpec
 import com.purloux.scala.substitutions.Substitutor
 
 class SubstitutorSpec extends FlatSpec {
-  private val substitutor = Substitutor.initializeWithSeed(0)
+  private val substitutor = new Substitutor().withRandomSeed(0)
 
   "A Plaintext element" should "yield itself" in {
     val input = "A plaintext sentence ~|{@}|~"
@@ -257,8 +257,7 @@ class SubstitutorSpec extends FlatSpec {
   }
 
   "A Substitutor" should "successfully register new commands at runtime" in {
-    val subber = Substitutor.initializeWithSeed(0)
-    subber.registerCommand("titlecase", { 
+    val subber = new Substitutor().withRandomSeed(0).withCommand("titlecase", { 
       _.map { 
         _.split(" ").map {
           _.toLowerCase.capitalize

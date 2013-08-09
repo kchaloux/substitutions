@@ -50,8 +50,7 @@ class ImplicitSubstitutionsSpec extends FlatSpec {
 
   it should "be overridden by local implicit substitutors" in {
     val template = "@{title[one two three]}"
-    implicit val sub = new Substitutor()
-    sub.registerCommand("title", { 
+    implicit val sub = new Substitutor().withCommand("title", { 
       _.map {
         _.split(" ").map {
           _.toLowerCase.capitalize

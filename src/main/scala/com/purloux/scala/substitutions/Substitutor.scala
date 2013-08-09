@@ -1,4 +1,5 @@
 package com.purloux.scala.substitutions
+import com.purloux.scala.substitutions.CommandTypes._
 import scala.collection.mutable.{ Map => MutableMap }
 import com.purloux.scala.utils.SafeOperations._
 import scala.util.Random
@@ -8,22 +9,31 @@ import scala.util.Random
  *  a map of replacement values
  *
  *  @constructor provide a random number generator for
- *    commands that produce some sort of random output
+ *    commands that produce some sort of random output,
+ *    a map of unparameterized commands, and
+ *    a map of parameterized commands
  */
-class Substitutor(rand : Random) {
-  type Command = Seq[String] => String
-  type ParamCommand = Seq[String] => Seq[String] => String
+class Substitutor(rand : Random,
+                  cmds : Map[String, Command],
+                  paramCmds : Map[String, ParamCommand])
+{
+  /** @constructor automatic random number generator and default commands */
+  def this() = this(new Random(), Map[String, Command](), Map[String, ParamCommand]())
 
-  /** Construct a substitutor with a new Random providing no special seed */
-  def this() = this(new Random)
+  /** @constructor given random number generator with default commands */
+  def this(rand : Random) = this(rand, Map[String, Command](), Map[String, ParamCommand]())
+  
+  /** @constructor automatic random number generator with specified (un|)parameterized commands */
+  def this(cmds: Map[String, Command], paramCmds : Map[String, ParamCommand]) =
+    this(new Random(), cmds, paramCmds)
 
-  /** Updateable table of unparameterized command-id -> manipulation-functions */
-  private var commands = MutableMap[String, Command](
-    "rand"    -> (xs => xs(rand.nextInt(xs.length)))
+  /** Table of unparameterized command-id -> manipulation-functions */
+  private var commands = cmds ++ Map[String, Command](
+    "rand" -> (xs => xs(rand.nextInt(xs.length)))
   )
 
-  /** Updateable table of parameterized command-id -> manipulation-functions */
-  private var paramCommands = MutableMap[String, ParamCommand]()
+  /** Table of parameterized command-id -> manipulation-functions */
+  private var paramCommands = paramCmds
 
   /** Returns an Option for an unparameterized command function
    *  with the given id. None is returned if no command exists
@@ -49,38 +59,54 @@ class Substitutor(rand : Random) {
       case None => paramCommands.get(id)
     }
 
-  /** Adds a new command to the unparameterized commands table
-   *  with the given id and manipulation function
+  /** Returns a new substitutor with the supplied 
+   *  unparameterized command registered to it
    *
    *  @param id identifier of the command to register
    *  @param command function used to manipulation inputs
    */
-  def registerCommand(id : String, command : Command): Unit =
-    commands(id) = command
+  def withCommand(id : String, command : Command) =
+    new Substitutor(rand, commands ++ Map(id -> command), paramCommands)
 
-  /** Adds a new set of commands to the unparameterized commands table
+  /** Returns a new substitutor with the supplied unparameterized
+   *  commands added to its current list of unparameterized commands
    *
    *  @param newCommands map of id -> function commands to add
    */
-  def registerCommands(newCommands : Map[String, Command]): Unit =
-    commands ++= newCommands
+  def withCommands(newCommands : Map[String, Command]) =
+    new Substitutor(rand, commands ++ newCommands, paramCommands)
 
-  /** Adds a new command to the parameterized commands table
-   *  with the given id and manipulation function
+  /** Returns a new substitutor with the supplied
+   *  parameterized commands registered to it
    *
    *  @param id identifier of the command to register
    *  @param command function used to manipulate inputs
    */
-  def registerParamCommand(id : String, command : ParamCommand): Unit =
-    paramCommands(id) = command
+  def withParamCommand(id : String, command : ParamCommand) =
+    new Substitutor(rand, commands, paramCommands ++ Map(id -> command))
 
-  /** Adds a new set of commands to the parameterized commands table
+  /** Returns a new substitutor with the supplied parameterized
+   *  commands added to its current list of parameterized commands
    *
    *   @param newCommands map of id -> function commands to add
    */
-  def registerParamCommands(newCommands : Map[String, ParamCommand]): Unit =
-      paramCommands ++= newCommands
+  def withParamCommands(newCommands : Map[String, ParamCommand]) =
+      new Substitutor(rand, commands, paramCommands ++ newCommands)
 
+  /** Returns a new substitutor using the given random number generator 
+   *  
+   *  @param newRandom new RNG to use for random effects generation
+   */
+  def withRandom(newRandom : Random) = 
+    new Substitutor(newRandom, commands, paramCommands)
+
+  /** Returns a new substitutor using a random number generator with
+   *  the supplied seed value
+   *  
+   *  @param seed random number generator seed
+   */
+  def withRandomSeed(seed : Long) =
+    new Substitutor(new Random(seed), commands, paramCommands)
 
   /** Symbol to prevent automatic whitespace insertion
    *  on newlines for multiline substitution mode
@@ -143,13 +169,6 @@ class Substitutor(rand : Random) {
 /** Substitutor Companion Object */
 object Substitutor {
 
-  /** Returns a new substitutor with the specified
-   *  seed for its internal random number generator
-   *
-   *  @param seed pseudo-random-number-generator seed
-   */
-  def initializeWithSeed(seed : Long) = new Substitutor(new Random(seed))
-
-    /** Default implicit substitutor */
+  /** Default implicit substitutor */
   implicit val substitutor = new Substitutor()
 }

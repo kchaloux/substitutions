@@ -41,4 +41,27 @@ class ImplicitSubstitutionsSpec extends FlatSpec {
       "3" -> "three")
     assert(result === "One Two Three")
   }
+
+  "The Implicit Substitutor" should "perform substitutions for only the default commands" in {
+    val template = "@{title[one two three]}"
+    val result = template sub ()
+    assert(result === "@{title[one two three]}")
+  }
+
+  it should "be overridden by local implicit substitutors" in {
+    val template = "@{title[one two three]}"
+    implicit val sub = new Substitutor()
+    sub.registerCommand("title", { 
+      _.map {
+        _.split(" ").map {
+          _.toLowerCase.capitalize
+        }
+        .mkString(" ")
+      }
+      .mkString(" ")
+    })
+
+    val result = template sub ()
+    assert(result === "One Two Three")
+  }
 }

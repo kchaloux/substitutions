@@ -113,7 +113,7 @@ substitutor.subMulti(template, Map(
 
 ```scala
 // Convert a string to "Title Case"
-substitutor.registerCommand("titlecase", {
+substitutor = new Substitutor().withCommand("titlecase", {
   _.map { 
     _.split(" ").map {
       _.toLowerCase.capitalize

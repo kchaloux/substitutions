@@ -129,6 +129,22 @@ substitutor.sub(template)
 >>> "The Tale Of Twelve Tarrasques" 
 ```
 
+### Use Implicits to Reduce Verbosity ###
+*Use a default implicit substitutor, or provide your own*
+
+```scala
+import com.purloux.scala.substitutions.ImplicitSubstitutions._
+
+val template = "@{caps[@{name}]} doesn't like @{verb}" 
+
+template <+ Map(
+  "name" -> "John",
+  "verb" -> "typing")
+
+>>> "John doesn't like typing"
+```
+
+
 To Build
 ========
 

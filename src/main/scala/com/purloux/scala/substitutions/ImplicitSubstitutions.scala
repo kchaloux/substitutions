@@ -43,17 +43,30 @@ object ImplicitSubstitutions {
      * */
     def subMulti(args : Map[String, Any])(implicit substitutor : Substitutor) =
       substitutor.subMulti(template, args)
+  }
+}
+
+/** Defines operator syntax for implicit substitutions */
+object ImplicitOperators {
+  import scala.language.postfixOps
+  
+  /** Extend string objects with substitution operators 
+   * 
+   *  @param template implicit string to be substituted
+   */
+  implicit class StringWithSubstitutionOps(val template : String) extends AnyVal {
+    import ImplicitSubstitutions._
 
     /** Shorthand for sub(args) */
-    def <+ (args : Map[String, Any])(implicit substitutor : Substitutor) = sub(args)
+    def <+ (args : Map[String, Any])(implicit substitutor : Substitutor) = template sub args
     
     /** Shorthand for sub() */
-    def <+! (implicit substitutor : Substitutor) = sub()
+    def <+! (implicit substitutor : Substitutor) = template sub ()
     
     /** Shorthand for subMulti(args) */
-    def <++ (args : Map[String, Any])(implicit substitutor : Substitutor) = subMulti(args)
+    def <++ (args : Map[String, Any])(implicit substitutor : Substitutor) = template subMulti args
     
     /** Shorthand for subMulti() */
-    def <++! (implicit substitutor : Substitutor) = subMulti()
+    def <++! (implicit substitutor : Substitutor) = template subMulti ()
   }
 }

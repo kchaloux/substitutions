@@ -1,7 +1,7 @@
 package com.purloux.scala.substitutions.test
-import com.purloux.scala.substitutions.SubstitutionParser
 import com.purloux.scala.substitutions.Substitutor
 import com.purloux.scala.substitutions.ImplicitSubstitutions._
+import com.purloux.scala.substitutions.ImplicitOperators._
 import org.scalatest.FlatSpec
 
 class ImplicitSubstitutionsSpec extends FlatSpec {

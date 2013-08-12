@@ -270,6 +270,47 @@ object SubstitutionCommands {
   private val greaterOrEqual = (params : Seq[String]) => (args : Seq[String]) =>
     createNumericComparison("gt")(params)(args){ (l, r) => l >= r }
 
+  /** Returns the inverse of a "true" or "false" argument 
+   *
+   *  @param value "true" or "false" string resulting
+   *  @param params list of parameters provided to the parent "notComparison" function
+   *  @param args argument list (unused)
+   */
+  private val notInversion = (value : String) => (params : Seq[String]) => (args : Seq[String]) => {
+    if (value == "true")
+      "false"
+    else if (value == "false")
+      "true"
+    else
+      reportError("not")(params)(args)("invalid boolean (" + value + ")")
+  }
+
+  /** Returns the inverse of a given "true" or "false" value, or the
+   *  inverse result of a boolean function returning those values
+   *
+   *  @param params list of parameters including either a boolean string
+   *    or the id of a boolean function, followed by two comparison values
+   *  @param args arguments list (unused)
+   */
+  private val notComparison = (params : Seq[String]) => (args : Seq[String]) => {
+    val showError = reportError("not")(params)(args)
+    if (args.length != 0)
+      showError("invalid content blocks (0 allowed)")
+    else {
+      if (params.length == 3) {  
+        val funcId = params(0)
+        getParamCommand(funcId) match {
+          case Some(func) => notInversion(func(params.drop(1))(args))(params)(args)
+          case _          => showError("invalid function name (" + funcId + ")")
+        }
+      }
+      else if (params.length == 1)
+        notInversion(params(0))(params)(args)
+      else 
+        showError("invalid parameters (1 or 3 required)")
+    }
+  }
+
   /** Returns the values of a list of arguments updated
    *  with a provided manipulation function
    *
@@ -297,7 +338,8 @@ object SubstitutionCommands {
     "lt"        -> (lessThan),
     "lte"       -> (lessOrEqual),
     "gt"        -> (greaterThan),
-    "gte"       -> (greaterOrEqual)
+    "gte"       -> (greaterOrEqual),
+    "not"       -> (notComparison)
   )
 
   /** Returns an Option for an unparameterized command function

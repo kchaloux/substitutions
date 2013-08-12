@@ -95,13 +95,13 @@ class SubstitutorSpec extends FlatSpec {
   }
 
   "A Pluralize command" should "select the leftmost branch for numeric inputs of 1" in {
-    val input = "@{pluralize(1)[apple|apples]}"
+    val input = "@{plural (1) [apple|apples]}"
     val result = substitutor.sub(input)
     assert(result === "apple")
   }
 
   it should "select the rightmost branch for any other numeric inputs" in {
-    val input = "@{pluralize(2)[apple|apples]}"
+    val input = "@{plural (2) [apple|apples]}"
     val result = substitutor.sub(input)
     assert(result === "apples")
   }
@@ -236,7 +236,7 @@ class SubstitutorSpec extends FlatSpec {
       drawing @{pro_pos} @{weapon} at the ready.
       @{br}_
       Suddenly, @{pro_sub} is ambushed by
-      @{pluralize (@{monster_number})
+      @{plural  (@{monster_number})
         [a lone @{monster}
         |a @{rand
             [troupe_

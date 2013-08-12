@@ -82,8 +82,8 @@ object SubstitutionCommands {
    *  @param params single integer value representing a quantity
    *  @param args two strings representing singular and plural forms
    */
-  private val pluralize = (params : Seq[String]) => (args : Seq[String]) => {
-    val showError = reportError("pluralize")(params)(args)
+  private val plural = (params : Seq[String]) => (args : Seq[String]) => {
+    val showError = reportError("plural")(params)(args)
     if (params.length != 1)
       showError("too many parameters (1 required)")
     else if (args.length != 2)
@@ -289,7 +289,7 @@ object SubstitutionCommands {
 
   /** Table of parameterized command-id -> manipulation-functions */
   private val paramCommands = Map[String, Seq[String] => Seq[String] => String](
-    "pluralize" -> (pluralize),
+    "plural"    -> (plural),
     "select"    -> (select),
     "if"        -> (ifChoice),
     "dup"       -> (duplicate),

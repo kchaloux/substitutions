@@ -125,11 +125,21 @@ class Substitutor(rand : Random,
    *  @param text string to substitute
    *  @param args arguments to use for replacements
    */
-  def sub(input : String, args : Map[String, Any]) =
+  def sub(input : String, args : Map[String, Any]): String = {
+    val arguments = args ++ specialCases
+
     SubstitutionParser.parseAll(SubstitutionParser.wholeText, input) match {
-      case SubstitutionParser.Success(output, _) => output.substitute(args ++ specialCases, this)
-      case SubstitutionParser.NoSuccess(_, _) => "{Parser Failure: " + input + "}"
+      case SubstitutionParser.Success(output, _) => {
+        val result = output.substitute(arguments, this)
+
+        SubstitutionParser.parseAll(SubstitutionParser.wholeText, result) match {
+          case SubstitutionParser.Success(escaped, _) => escaped.substituteLast(arguments, this)
+          case SubstitutionParser.NoSuccess(_, _) => s"{Parser Failure: ${input}}"
+        }
+      }
+      case SubstitutionParser.NoSuccess(_, _) => s"{Parser Failure: ${input}}"
     }
+  }
 
   /** Returns the substitution result of a string in
    *  multiline mode, using given arguments for replacement values
@@ -137,10 +147,10 @@ class Substitutor(rand : Random,
    *  @param text arbitrary format multiline string to substitute
    *  @param args arguments to use for replacements
    */
-  def subMulti(input : String, args : Map[String, Any]) =
-  {
+  def subMulti(input : String, args : Map[String, Any]): String = {
     val withSpace = (str : String) =>
       if (str.endsWith(stopSpace)) str.dropRight(1) else (str + " ")
+      
     val stripped = input.split("(\r)?\n")
                         .map(str => withSpace(str.trim))
                         .mkString

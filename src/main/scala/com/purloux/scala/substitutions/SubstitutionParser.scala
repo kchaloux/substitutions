@@ -21,6 +21,8 @@ object SubstitutionParser extends RegexParsers {
   private val delimParam  = ","
   private val openParam   = "("
   private val closeParam  = ")"
+  private val openAngle   = "<"
+  private val closeAngle  = ">"
   private val start       = "^".r
   private val end         = "$".r
   private val any         = ".*".r
@@ -32,45 +34,48 @@ object SubstitutionParser extends RegexParsers {
   private def withoutAny(elems : String*) : Regex = ("[^" + elems.mkString + "]").r
 
   def commands        = ( replacement | paramCommand | command )
-  def plainElement    = ( commands | plainText )
-  def listElement     = ( commands | plainListText )
-  def paramElement    = ( commands | plainParamText )
-  def safeSigil       = withAny(sigil) <~ not(withAny(openBrace))
+  def anyElement      = ( commands | plainText | escapeBlock )
+  def listElement     = ( commands | escapeBlock | plainListText )
+  def paramElement    = ( commands | escapeBlock | plainParamText )
   def safeDash        = ((start | withoutAny(openBrace)) ~
       withAny(dash) ~ (withoutAny(closeBrace) | end))
+  def safeCommandSigil = withAny(sigil) <~ not(withAny(openBrace)) 
+  def safeEscapeSigil  = withAny(sigil) <~ not(withAny(openAngle))
+  def safeSigil        = withAny(sigil) <~ not(withAny(openBrace) | withAny(openAngle))
 
-  /** Convert a list of strings or characters into a PlainText substitution element */
-  def listToPlainText(result: List[java.io.Serializable]) : PlainText = result match {
-    case (elems) => PlainText(elems.map {
+  /** Convert a list of strings or characters into a single string */
+  def listToString(result: List[java.io.Serializable]): String = result match {
+    case (elems) => elems.map {
       _ match {
         case (l~r) => Seq(l, r).mkString("")
         case (any) => any
       }
-    }.mkString(""))
+    }.mkString("")
   }
 
   /** Match a body of text consisting of a block of SubstitutionElements */
   def wholeText : Parser[ElementBlock] =
-    start ~> (plainElement *) <~ end ^^ { ElementBlock }
+    start ~> (anyElement *) <~ end ^^ { ElementBlock }
 
   /** Match a single uninterrupted PlainText SubstitutionElement */
   def plainText : Parser[PlainText] =
-    rep1 (withoutAny(sigil) | safeSigil ) ^^ { listToPlainText }
+    rep1 (withoutAny(sigil) | safeSigil ) ^^ 
+      { case (contents) => PlainText(listToString(contents)) }
 
   /** Match a single uninterrupted PlainText SubstitutionElement
    *  excluding special characters designated for lists, delimiters and commands
    */
   def plainListText : Parser[PlainText] = {
-    rep1 ( withoutAny(sigil, quote(openList, closeList, delimList)) | safeSigil ) ^^
-      { listToPlainText }
+    rep1 ( withoutAny(sigil, quote(openList, closeList, delimList)) | safeCommandSigil ) ^^
+      { case(contents) => PlainText(listToString(contents)) }
   }
 
   /** Match a single uninterrupted PlainText SubstitutionElement
    *  excluding special characters designated for parameter lists, delimiters and commands
    */
   def plainParamText : Parser[PlainText] = {
-    (rep1 ( withoutAny(sigil, quote(openParam, closeParam, delimParam)) | safeSigil )) ^^
-      { listToPlainText }
+    (rep1 ( withoutAny(sigil, quote(openParam, closeParam, delimParam)) | safeCommandSigil )) ^^
+      {  case(contents) => PlainText(listToString(contents)) }
   }
 
   /** Match a parameter list comprising any number of elements */
@@ -110,4 +115,14 @@ object SubstitutionParser extends RegexParsers {
           ParameterizedCommand(Identifier(id), params, ElementsList(Seq[ElementBlock]()))
       }
   }
+
+  /** Match a single uninterrupted sequence of characters 
+   *  that can be used within an Escape Block
+   */
+  def escapeBlock : Parser[EscapeElement] = 
+    (sigil ~ openAngle ~> 
+      (rep1 (withoutAny(sigil, closeAngle) 
+        | safeEscapeSigil
+      )) <~ closeAngle) ^^
+      { case(contents) => EscapeElement(listToString(contents)) }
 }

@@ -14,11 +14,26 @@ object SubstitutionElements {
      *  @param substitutor instance used to invoke substitution commands
      */
     def substitute(args : Map[String, Any], substitutor : Substitutor): String
+
+    /** Returns a special substitution to get the raw contents of those
+     *  substitution elements that are substituted after the fact 
+     * 
+     *  @param args replacement value mapping
+     *  @param substitutor instance used to invoke substitution commands
+     */
+    def substituteLast(args : Map[String, Any], substitutor : Substitutor): String =
+      substitute(args, substitutor)
   }
 
   /** Plaintext element with no substitution logic */
   case class PlainText(contents : String) extends SubstitutionElement {
     override def substitute(args : Map[String, Any], substitutor : Substitutor): String = contents
+  }
+
+  /** Special wrapped plaintext that allows arbitrary expressions that won't be replaced */
+  case class EscapeElement(contents : String) extends SubstitutionElement {
+    override def substitute(args : Map[String, Any], substitutor : Substitutor): String = s"@<${contents}>"
+    override def substituteLast(args : Map[String, Any], substitutor : Substitutor): String = contents
   }
 
   /** Command or replacement identifier */
@@ -30,6 +45,9 @@ object SubstitutionElements {
   case class ElementBlock(elements: Seq[SubstitutionElement]) extends SubstitutionElement {
     override def substitute(args : Map[String, Any], substitutor : Substitutor): String =
       elements.map(_.substitute(args, substitutor)).mkString("")
+
+    override def substituteLast(args : Map[String, Any], substitutor : Substitutor): String =
+      elements.map(_.substituteLast(args, substitutor)).mkString("")
   }
 
   /** List of separate parsed ElementBlocks (such as an Argument List) */

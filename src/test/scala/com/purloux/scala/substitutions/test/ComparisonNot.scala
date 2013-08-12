@@ -2,7 +2,7 @@ package com.purloux.scala.substitutions.test
 import com.purloux.scala.substitutions.test.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class CompareNot extends FlatSpec {
+class ComparisonNot extends FlatSpec {
 
   "A Not inversion" should "yield 'true' when provided 'false'" in {
     val input = "@{not(false)}"

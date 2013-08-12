@@ -2,9 +2,9 @@ package com.purloux.scala.substitutions.test
 import com.purloux.scala.substitutions.test.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class CommandIf extends FlatSpec {
+class BranchingIf extends FlatSpec {
   
-  "An If command" should "select the leftmost branch when provided 'true'" in {
+  "An If branch" should "select the leftmost branch when provided 'true'" in {
     val input = "@{if(true)[true|false]}"
     val result = substitutor.sub(input)
     assert(result === "true")

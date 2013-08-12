@@ -2,7 +2,7 @@ package com.purloux.scala.substitutions.test
 import com.purloux.scala.substitutions.test.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class CompareGT extends FlatSpec {
+class ComparisonGT extends FlatSpec {
   
   "A GT comparison" should "yield 'true' for a first argument greater than the second" in {
     val input = "@{gt(1,0)}"

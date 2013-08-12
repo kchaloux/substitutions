@@ -2,9 +2,9 @@ package com.purloux.scala.substitutions.test
 import com.purloux.scala.substitutions.test.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class CommandPlural extends FlatSpec {
+class BranchingPlural extends FlatSpec {
   
-  "A Plural command" should "select the leftmost branch for numeric inputs of 1" in {
+  "A Plural branch" should "select the leftmost branch for numeric inputs of 1" in {
     val input = "@{plural (1) [apple|apples]}"
     val result = substitutor.sub(input)
     assert(result === "apple")

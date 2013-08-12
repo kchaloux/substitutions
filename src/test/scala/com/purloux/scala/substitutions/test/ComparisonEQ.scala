@@ -2,7 +2,7 @@ package com.purloux.scala.substitutions.test
 import com.purloux.scala.substitutions.test.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class CompareEQ extends FlatSpec {
+class ComparisonEQ extends FlatSpec {
   
   "An EQ comparison" should "yield 'true' for any values with string equality" in {
     val input = "@{eq(a, a)}"

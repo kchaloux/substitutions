@@ -2,9 +2,9 @@ package com.purloux.scala.substitutions.test
 import com.purloux.scala.substitutions.test.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class CommandUpper extends FlatSpec {
+class ManipulationUpper extends FlatSpec {
   
-  "An Upper command" should "replace any arguments with uppercase arguments" in {
+  "An Upper manipulation" should "replace any arguments with uppercase arguments" in {
     val input = "@{upper[ONE Two 123]}"
     val result = substitutor.sub(input)
     assert(result === "ONE TWO 123")

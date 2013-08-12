@@ -43,6 +43,23 @@ object Manipulations {
     }
   }
 
+  /** Returns a string joining each argument, separated by
+   *  the given separator. Ignores empty arguments.
+   *  
+   *  @param params single string used to separate arguments
+   *  @args list of arguments to join together 
+   */
+  val join = 
+    (params : Seq[String]) =>
+    (args : Seq[String]) =>
+  {
+    val showError = reportError("join")(params)(args)
+    if (params.length != 1)
+      showError("invalid parameters ((str) expected)")
+    else
+      args.filterNot(_.isEmpty).mkString(params(0))
+  }
+
   /** Returns the values of a list of arguments updated
    *  with a provided manipulation function
    *

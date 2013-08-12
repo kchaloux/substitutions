@@ -23,6 +23,7 @@ object SubstitutionCommands {
     "plural"    -> Branching.plural,
     "select"    -> Branching.select,
     "if"        -> Branching.ifChoice,
+    "join"      -> Manipulations.join,
     "dup"       -> Manipulations.duplicate,
     "eq"        -> Comparisons.equal,
     "lt"        -> Comparisons.lessThan,

@@ -2,6 +2,7 @@ package com.purloux.scala.substitutions
 
 /** Defines possible elements of a text substitution string */
 object SubstitutionElements {
+  import com.purloux.scala.substitutions.commands.ErrorReporting
 
   /** Any substitution element with replacement logic */
   sealed abstract class SubstitutionElement {
@@ -53,7 +54,7 @@ object SubstitutionElements {
       val replacedContents = contents.blocks.map(_.substitute(args, substitutor))
       val transform = substitutor.getCommand(ident.name.toLowerCase) match {
         case Some(fn) => fn
-        case None     => SubstitutionCommands.showCommand(ident.name.toLowerCase)(Seq[String]())
+        case None     => ErrorReporting.showCommand(ident.name.toLowerCase)(Seq[String]())
       }
       transform(replacedContents)
     }
@@ -70,7 +71,7 @@ object SubstitutionElements {
       val replacedParams = params.blocks.map(_.substitute(args, substitutor))
       val transform = substitutor.getParamCommand(ident.name.toLowerCase) match {
         case Some(fn) => fn(replacedParams)
-        case None     => SubstitutionCommands.showCommand(ident.name.toLowerCase)(replacedParams)
+        case None     => ErrorReporting.showCommand(ident.name.toLowerCase)(replacedParams)
       }
       transform(replacedContents)
     }

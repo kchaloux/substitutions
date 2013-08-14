@@ -33,4 +33,10 @@ class EscapedSpec extends FlatSpec {
     val result = substitutor.sub(input)
     assert(result === "one @<two> three @<four @<five> six>")
   }
+
+  it should "allow arbitrary <> pairs (when matched)" in {
+    val input = "@<escape <one> <two> <three>>"
+    val result = substitutor.sub(input)
+    assert(result === "escape <one> <two> <three>")
+  }
 }

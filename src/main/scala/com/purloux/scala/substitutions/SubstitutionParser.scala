@@ -37,7 +37,7 @@ object SubstitutionParser extends RegexParsers {
   def anyElement      = ( commands | plainText | escapeBlock )
   def listElement     = ( commands | plainListText | escapeBlock )
   def paramElement    = ( commands | plainParamText | escapeBlock )
-  def anyEscapeElement = ( escapeText | inertEscapeBlock )
+  def anyEscapeElement = ( escapeText | inertAngleBlock )
   def safeCommandSigil = withAny(sigil) <~ not(withAny(openBrace))
   def safeEscapeSigil  = withAny(sigil) <~ not(withAny(openAngle))
   def safeSigil        = withAny(sigil) <~ not(withAny(openBrace) | withAny(openAngle))
@@ -117,12 +117,12 @@ object SubstitutionParser extends RegexParsers {
 
   /** Match a sequence of characters allowable within an escape block */
   def escapeText : Parser[PlainText] =
-    rep1 (withoutAny(sigil, closeAngle) | safeEscapeSigil) ^^
+    rep1 (withoutAny(openAngle, closeAngle)) ^^
       { case(contents) => PlainText(listToString(contents)) }
 
-  /** Match a nested escape block (not to be unescaped on final substitution) */
-  def inertEscapeBlock : Parser[InertEscapeBlock] =
-    (sigil ~ openAngle ~> (anyEscapeElement *) <~ closeAngle) ^^ InertEscapeBlock
+  /** Match an arbitrary set of paired angle brackets within an escape block */
+  def inertAngleBlock : Parser[InertAngleBlock] =
+    (openAngle ~> (anyEscapeElement *) <~ closeAngle) ^^ InertAngleBlock
 
   /** Match a top-level escape block (to be unescaped on final substitution */
   def escapeBlock : Parser[EscapeBlock] =

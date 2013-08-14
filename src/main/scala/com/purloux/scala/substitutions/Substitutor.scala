@@ -1,7 +1,5 @@
 package com.purloux.scala.substitutions
 import com.purloux.scala.substitutions.CommandTypes._
-import scala.collection.mutable.{ Map => MutableMap }
-import com.purloux.scala.utils.SafeOperations._
 import scala.util.Random
 
 /** Replaces marked up string contents with new values
@@ -17,6 +15,9 @@ class Substitutor(rand : Random,
                   cmds : Map[String, Command],
                   paramCmds : Map[String, ParamCommand])
 {
+  import com.purloux.scala.utils.SafeOperations._
+  import com.purloux.scala.substitutions.commands.PseudoRandom
+
   /** @constructor automatic random number generator and default commands */
   def this() = this(new Random(), Map[String, Command](), Map[String, ParamCommand]())
 
@@ -29,11 +30,13 @@ class Substitutor(rand : Random,
 
   /** Table of unparameterized command-id -> manipulation-functions */
   private var commands = cmds ++ Map[String, Command](
-    "rand" -> (xs => xs(rand.nextInt(xs.length)))
+    "rand" -> PseudoRandom.randElement(rand)
   )
 
   /** Table of parameterized command-id -> manipulation-functions */
-  private var paramCommands = paramCmds
+  private var paramCommands = paramCmds ++ Map[String, ParamCommand](
+    "rand" -> PseudoRandom.randNumber(rand)
+  )
 
   /** Returns an Option for an unparameterized command function
    *  with the given id. None is returned if no command exists

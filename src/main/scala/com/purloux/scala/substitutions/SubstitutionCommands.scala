@@ -24,7 +24,7 @@ object SubstitutionCommands {
     "select"    -> Branching.select,
     "if"        -> Branching.ifChoice,
     "join"      -> Manipulations.join,
-    "dup"       -> Manipulations.duplicate,
+    "dup"       -> Generations.duplicate,
     "eq"        -> Comparisons.equal,
     "lt"        -> Comparisons.lessThan,
     "lte"       -> Comparisons.lessOrEqual,

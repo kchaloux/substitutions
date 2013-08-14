@@ -35,11 +35,10 @@ object SubstitutionParser extends RegexParsers {
 
   def commands        = ( replacement | paramCommand | command )
   def anyElement      = ( commands | plainText | escapeBlock )
-  def listElement     = ( commands | escapeBlock | plainListText )
-  def paramElement    = ( commands | escapeBlock | plainParamText )
-  def safeDash        = ((start | withoutAny(openBrace)) ~
-      withAny(dash) ~ (withoutAny(closeBrace) | end))
-  def safeCommandSigil = withAny(sigil) <~ not(withAny(openBrace)) 
+  def listElement     = ( commands | plainListText | escapeBlock )
+  def paramElement    = ( commands | plainParamText | escapeBlock )
+  def anyEscapeElement = ( escapeText | inertEscapeBlock )
+  def safeCommandSigil = withAny(sigil) <~ not(withAny(openBrace))
   def safeEscapeSigil  = withAny(sigil) <~ not(withAny(openAngle))
   def safeSigil        = withAny(sigil) <~ not(withAny(openBrace) | withAny(openAngle))
 
@@ -59,14 +58,14 @@ object SubstitutionParser extends RegexParsers {
 
   /** Match a single uninterrupted PlainText SubstitutionElement */
   def plainText : Parser[PlainText] =
-    rep1 (withoutAny(sigil) | safeSigil ) ^^ 
+    rep1 (withoutAny(sigil) | safeSigil ) ^^
       { case (contents) => PlainText(listToString(contents)) }
 
   /** Match a single uninterrupted PlainText SubstitutionElement
    *  excluding special characters designated for lists, delimiters and commands
    */
   def plainListText : Parser[PlainText] = {
-    rep1 ( withoutAny(sigil, quote(openList, closeList, delimList)) | safeCommandSigil ) ^^
+    rep1 ( withoutAny(sigil, quote(openList, closeList, delimList)) | safeSigil ) ^^
       { case(contents) => PlainText(listToString(contents)) }
   }
 
@@ -74,7 +73,7 @@ object SubstitutionParser extends RegexParsers {
    *  excluding special characters designated for parameter lists, delimiters and commands
    */
   def plainParamText : Parser[PlainText] = {
-    (rep1 ( withoutAny(sigil, quote(openParam, closeParam, delimParam)) | safeCommandSigil )) ^^
+    (rep1 ( withoutAny(sigil, quote(openParam, closeParam, delimParam)) | safeSigil )) ^^
       {  case(contents) => PlainText(listToString(contents)) }
   }
 
@@ -116,13 +115,17 @@ object SubstitutionParser extends RegexParsers {
       }
   }
 
-  /** Match a single uninterrupted sequence of characters 
-   *  that can be used within an Escape Block
-   */
-  def escapeBlock : Parser[EscapeElement] = 
-    (sigil ~ openAngle ~> 
-      (rep1 (withoutAny(sigil, closeAngle) 
-        | safeEscapeSigil
-      )) <~ closeAngle) ^^
-      { case(contents) => EscapeElement(listToString(contents)) }
+  /** Match a sequence of characters allowable within an escape block */
+  def escapeText : Parser[PlainText] =
+    rep1 (withoutAny(sigil, closeAngle) | safeEscapeSigil) ^^
+      { case(contents) => PlainText(listToString(contents)) }
+
+  /** Match a nested escape block (not to be unescaped on final substitution) */
+  def inertEscapeBlock : Parser[InertEscapeBlock] =
+    (sigil ~ openAngle ~> (anyEscapeElement *) <~ closeAngle) ^^ InertEscapeBlock
+
+  /** Match a top-level escape block (to be unescaped on final substitution */
+  def escapeBlock : Parser[EscapeBlock] =
+    (sigil ~ openAngle ~> (anyEscapeElement *) <~ closeAngle) ^^ EscapeBlock
+
 }

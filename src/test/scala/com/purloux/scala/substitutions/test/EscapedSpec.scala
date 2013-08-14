@@ -21,4 +21,16 @@ class EscapedSpec extends FlatSpec {
     val result = substitutor.sub(input)
     assert(result === "||||||||||")
   }
+
+  it should "allow nesting of escaped elements" in {
+    val input = "@<@<escaped element>>"
+    val result = substitutor.sub(input)
+    assert(result === "@<escaped element>")
+  }
+
+  it should "allow arbitrary mixes of plaintext and nested escaped elements" in {
+    val input = "@<one @<two> three @<four @<five> six>>"
+    val result = substitutor.sub(input)
+    assert(result === "one @<two> three @<four @<five> six>")
+  }
 }

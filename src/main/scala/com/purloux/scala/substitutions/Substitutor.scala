@@ -133,8 +133,8 @@ class Substitutor(rand : Random,
         val result = output.substitute(arguments, this)
 
         SubstitutionParser.parseAll(SubstitutionParser.wholeText, result) match {
-          case SubstitutionParser.Success(escaped, _) => escaped.substituteLast(arguments, this)
-          case SubstitutionParser.NoSuccess(_, _) => s"{Parser Failure: ${input}}"
+         case SubstitutionParser.Success(escaped, _) => escaped.substituteLast(arguments, this)
+         case SubstitutionParser.NoSuccess(_, _) => s"{Parser Failure: ${input}}"
         }
       }
       case SubstitutionParser.NoSuccess(_, _) => s"{Parser Failure: ${input}}"

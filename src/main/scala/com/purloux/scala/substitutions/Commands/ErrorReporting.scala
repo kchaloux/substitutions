@@ -35,6 +35,6 @@ object ErrorReporting {
     (args : Seq[String]) =>
     (error : String) =>
   {
-    showCommand(id + s":error<${error}>")(params)(args)
+    throw new Exception(showCommand(id + s":error<${error}>")(params)(args))
   }
 }

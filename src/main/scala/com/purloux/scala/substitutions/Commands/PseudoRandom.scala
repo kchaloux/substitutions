@@ -11,35 +11,35 @@ object PseudoRandom {
   /** Returns a random element from a list of elements 
    *
    *  @param rand pseudo random number generator
-   *  @param args collection of elements to pull from
+   *  @param contents collection of elements to pull from
    */
-  val randElement = (rand : Random) => (args : Seq[String]) => 
-    args(rand.nextInt(args.length))
+  val randElement = (rand : Random) => (contents : Seq[String]) => 
+    contents(rand.nextInt(contents.length))
 
   /** Returns a random BigInt from a range of BigInts 
    *
    *  @param rand pseudo-random number generator
-   *  @param params boundaries to pull a value from
-   *  @param args content blocks (unused)
+   *  @param args boundaries to pull a value from
+   *  @param contents content blocks (unused)
    */
   val randNumber =
     (rand : Random) =>
-    (params : Seq[String]) =>
     (args : Seq[String]) =>
+    (contents : Seq[String]) =>
   {
-    val input = showCommand("rand")(params)(args)
-    if (params.length != 2) {
+    val input = showCommand("rand")(args)(contents)
+    if (args.length != 2) {
       val message = "invalid arguments ((int, int) expected)"
       throw new ParamCommandInvocationException(message, input)
     }
-    else if (args.length != 0) {
+    else if (contents.length != 0) {
       val message = "invalid content blocks (0 allowed)"
       throw new ParamCommandInvocationException(message, input)
     }
     else {
       try {
-        val boundA = BigInt(params(0).trim)
-        val boundB = BigInt(params(1).trim)
+        val boundA = BigInt(args(0).trim)
+        val boundB = BigInt(args(1).trim)
 
         val low = boundA.min(boundB)
         val high = boundA.max(boundB)

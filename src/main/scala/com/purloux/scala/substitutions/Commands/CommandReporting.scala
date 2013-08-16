@@ -7,16 +7,16 @@ object CommandReporting {
    *  command with the given id, parameters and arguments
    *
    *  @param id identifier of the command to show
-   *  @param params parameter list
-   *  @param contents args list
+   *  @param args parameter list
+   *  @param contents contents list
    */
   val showCommand =
     (id : String) =>
-    (params: Seq[String]) =>
     (args: Seq[String]) =>
+    (contents: Seq[String]) =>
   {
-    val paramList = if (params.isEmpty) "" else "(" + params.mkString(",") + ")"
-    val argList = if (args.isEmpty) "" else "[" + args.mkString("|") + "]"
+    val paramList = if (args.isEmpty) "" else "(" + args.mkString(",") + ")"
+    val argList = if (contents.isEmpty) "" else "[" + contents.mkString("|") + "]"
     s"@{$id$paramList$argList}"
   }
 }

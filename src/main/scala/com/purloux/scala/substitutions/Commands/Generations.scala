@@ -16,30 +16,31 @@ object Generations {
    *  resultant strings each each argument will be joined on the
    *  second provided delimiter (defaults to " ")
    *
-   *  @param params number of times to repeat the argument,
+   *  @param args number of times to repeat the argument,
    *    optionally with inner delimiter (defaults to "")
    *    and optionally with outer delimiter (defaults to " ")
-   *  @param args list of */
+   *  @param contents list of elements to duplicate
+   */
   val duplicate =
-    (params : Seq[String]) =>
     (args : Seq[String]) =>
+    (contents : Seq[String]) =>
   {
-    val input = showCommand("dup")(params)(args)
-    if (params.length < 1) {
+    val input = showCommand("dup")(args)(contents)
+    if (args.length < 1) {
       val message = "missing arguments (1-3 required)"
       throw new ParamCommandInvocationException(message, input)
     }
-    else if (params.length > 3) {
+    else if (args.length > 3) {
       val message = "too many arguments (1-3 required)"
       throw new ParamCommandInvocationException(message, input)
     }
     else {
-      val delim1 = if (params.length >= 2) params(1) else ""
-      val delim2 = if (params.length >= 3) params(2) else ""
-      (params(0) safePerform (_.toInt)) match {
+      val delim1 = if (args.length >= 2) args(1) else ""
+      val delim2 = if (args.length >= 3) args(2) else ""
+      (args(0) safePerform (_.toInt)) match {
         case Some(value) => {
           if (value > 0)
-            args.map(Stream.continually(_).take(value).mkString(delim1)).mkString(delim2)
+            contents.map(Stream.continually(_).take(value).mkString(delim1)).mkString(delim2)
           else
             ""
         }

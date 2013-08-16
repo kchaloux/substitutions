@@ -10,30 +10,30 @@ object Manipulations {
   /** Returns a string joining each argument, separated by
    *  the given separator. Ignores empty arguments.
    *  
-   *  @param params single string used to separate arguments
-   *  @args list of arguments to join together 
+   *  @param args single string used to separate arguments
+   *  @contents list of arguments to join together 
    */
   val join = 
-    (params : Seq[String]) =>
     (args : Seq[String]) =>
+    (contents : Seq[String]) =>
   {
-    val input = showCommand("join")(params)(args)
-    if (params.length != 1) {
+    val input = showCommand("join")(args)(contents)
+    if (args.length != 1) {
       val message = "invalid parameters ((str) expected)"
       throw new ParamCommandInvocationException(message, input)
     }
     else
-      args.filterNot(_.isEmpty).mkString(params(0))
+      contents.filterNot(_.isEmpty).mkString(args(0))
   }
 
   /** Returns the values of a list of arguments updated
    *  with a provided manipulation function
    *
    *  @param fn function to update strings with
-   *  @param args argument list to apply manipulations to
+   *  @param contents argument list to apply manipulations to
    */
-  private val updateWith = (fn: (String) => String) => (args: Seq[String]) =>
-    args.map(fn).mkString(" ")
+  private val updateWith = (fn: (String) => String) => (contents: Seq[String]) =>
+    contents.map(fn).mkString(" ")
 
   /** Returns the provided arguments capitalized */
   val caps = updateWith(_.toLowerCase.capitalize)

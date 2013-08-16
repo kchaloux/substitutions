@@ -2,7 +2,7 @@ package com.purloux.scala.substitutions
 
 /** Defines possible elements of a text substitution string */
 object SubstitutionElements {
-  import com.purloux.scala.substitutions.commands.ErrorReporting
+  import com.purloux.scala.substitutions.commands.CommandReporting._
 
   /** Any substitution element with replacement logic */
   trait SubstitutionElement {
@@ -47,6 +47,12 @@ object SubstitutionElements {
       "<" + elements.map(_.substituteEscape).mkString + ">"
   }
 
+  /** Escaped angle bracket for representing < and > within an Escaped Block */
+  case class EscapedAngleBracket(contents : String) extends SubstitutionElement {
+    def substitute(args : Map[String, Any], substitutor : Substitutor): String = contents
+    def substituteEscape(): String = contents.drop(1)
+  }
+
   /** Command or replacement identifier */
   case class Identifier(name : String) extends SubstitutionElement {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String = ""
@@ -89,14 +95,14 @@ object SubstitutionElements {
       val replacedContents = contents.blocks.map(_.substitute(args, substitutor))
       val transform = substitutor.getCommand(ident.name.toLowerCase) match {
         case Some(fn) => fn
-        case None     => ErrorReporting.showCommand(ident.name.toLowerCase)(Seq[String]())
+        case None     => showCommand(ident.name.toLowerCase)(Seq[String]())
       }
       transform(replacedContents)
     }
 
     def substituteEscape(): String = {
       val escapeContents = contents.blocks.map(_.substituteEscape)
-      ErrorReporting.showCommand(ident.name)(Seq[String]())(escapeContents)
+      showCommand(ident.name)(Seq[String]())(escapeContents)
     }
   }
 
@@ -111,7 +117,7 @@ object SubstitutionElements {
       val replacedParams = params.blocks.map(_.substitute(args, substitutor))
       val transform = substitutor.getParamCommand(ident.name.toLowerCase) match {
         case Some(fn) => fn(replacedParams)
-        case None     => ErrorReporting.showCommand(ident.name.toLowerCase)(replacedParams)
+        case None     => showCommand(ident.name.toLowerCase)(replacedParams)
       }
       transform(replacedContents)
     }
@@ -119,7 +125,7 @@ object SubstitutionElements {
     def substituteEscape(): String = { 
       val escapeContents = contents.blocks.map(_.substituteEscape)
       val escapeParams = params.blocks.map(_.substituteEscape)
-      ErrorReporting.showCommand(ident.name)(escapeParams)(escapeContents)
+      showCommand(ident.name)(escapeParams)(escapeContents)
     }
   }
 }

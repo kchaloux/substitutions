@@ -2,7 +2,8 @@ package com.purloux.scala.substitutions.commands
 
 /** Defines functions that select a branch from a list of arguments */
 object Branching {
-  import com.purloux.scala.substitutions.commands.ErrorReporting._
+  import com.purloux.scala.substitutions.commands.CommandReporting._
+  import com.purloux.scala.substitutions.SubstitutionExceptions._
   import com.purloux.scala.substitutions.SubstitutionCommands._
   import com.purloux.scala.utils.SafeOperations._
 
@@ -18,7 +19,6 @@ object Branching {
     (params : Seq[String]) =>
     (args : Seq[String]) =>
   {
-    val showError = reportError(id)(params)(args)
     val funcId = params(0)
     val compareWith = params(1)
     getParamCommand(funcId) match {
@@ -33,7 +33,7 @@ object Branching {
         }
         else choices(0)._2
       }
-      case _ => showError("invalid function name (" + funcId + ")")
+      case _ => throw new UnknownParamCommandException(funcId)
     }
   }
 
@@ -44,17 +44,25 @@ object Branching {
    *  @param args two strings representing singular and plural forms
    */
   val plural = (params : Seq[String]) => (args : Seq[String]) => {
-    val showError = reportError("plural")(params)(args)
-    if (params.length != 1)
-      showError("too many parameters (1 required)")
-    else if (args.length != 2)
-      showError("invalid content blocks (2 required)")
+    val input = showCommand("plural")(params)(args)
+    if (params.length != 1) {
+      val message = "too many arguments (1 required)"
+      throw new ParamCommandInvocationException(message, input)
+    }
+    else if (args.length != 2) {
+      val message = "invalid content blocks (2 required)"
+      throw new ParamCommandInvocationException(message, input)
+    }
     else (params(0) safePerform (_.toInt)) match {
       case Some(value) => value match {
         case 1 => args(0)
         case _ => args(1)
       }
-      case None => showError("invalid argument ((int) expected)")
+      case None => { 
+        val message = "invalid argument ((int) expected)"
+        val input = showCommand("plural")(params)(args)
+        throw new ParamCommandInvocationException(message, input)
+      }
     }
   }
 
@@ -64,18 +72,24 @@ object Branching {
    *  @param args 1-2 possible outputs ([true|false] (optional))
    */
   val ifChoice = (params : Seq[String]) => (args : Seq[String]) => {
-    val showError = reportError("if")(params)(args)
-    if (params.length < 1)
-      showError("missing parameters (1 or 3 required)")
-    else if (args.length < 1)
-      showError("missing content blocks (1-2 required)")
-    else if (args.length > 2)
-      showError("too many content blocks (1-2 required)")
+    val input = showCommand("if")(params)(args)
+    if (params.length < 1) {
+      throw new ParamCommandInvocationException("missing arguments (1 or 3 required)", input)
+    }
+    else if (args.length < 1) {
+      throw new ParamCommandInvocationException("missing content blocks (1-2 required)", input)
+    }
+    else if (args.length > 2) {
+      throw new ParamCommandInvocationException("too many content blocks (1-2 required)", input)
+    }
     else {
       if (params.length == 1) (params(0).toString.toLowerCase) match {
-        case s if (s == "true") => args(0)
-        case s if (s == "false") => if (args.length == 2) args(1) else ""
-        case _ => showError("invalid argument ((boolean) expected)")
+        case s if (s == "true")   => args(0)
+        case s if (s == "false")  => if (args.length == 2) args(1) else ""
+        case s if (s == s)        => {
+          val message = "invalid arugment ((boolean) expected - \"$s\" received)"
+          throw new ParamCommandInvocationException(message, input)
+        }
       }
       else selectCase("if")(params)(args)
     }
@@ -90,13 +104,19 @@ object Branching {
    *    where n is the number of comparison values provided
    */
   val select = (params : Seq[String]) => (args : Seq[String]) => {
-    val showError = reportError("select")(params)(args)
-    if (params.length < 3)
-      showError("missing parameters (3+ required)")
-    else if (args.length < params.length - 2)
-      showError(s"missing content blocks (${params.length-2}-${params.length-1} required)")
-    else if (args.length > params.length - 1)
-      showError(s"too many content blocks (${params.length-2}-${params.length-1} required)")
+    val input = showCommand("select")(params)(args)
+    if (params.length < 3) {
+      val message = "missing arguments (3+ required)"
+      throw new ParamCommandInvocationException(message, input)
+    }
+    else if (args.length < params.length - 2) {
+      val message = s"missing content blocks (${params.length-2}-${params.length-1} required)"
+      throw new ParamCommandInvocationException(message, input)
+    }
+    else if (args.length > params.length - 1) {
+      val message = s"too many content blocks (${params.length-2}-${params.length-1} required)"
+      throw new ParamCommandInvocationException(message, input)
+    }
     else
       selectCase("select")(params)(args)
   }

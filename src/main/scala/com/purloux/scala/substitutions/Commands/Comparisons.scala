@@ -2,7 +2,8 @@ package com.purloux.scala.substitutions.commands
 
 /** Defines functions used to compare parameters and return true or false values */
 object Comparisons {
-  import com.purloux.scala.substitutions.commands.ErrorReporting._
+  import com.purloux.scala.substitutions.commands.CommandReporting._
+  import com.purloux.scala.substitutions.SubstitutionExceptions._
   import com.purloux.scala.substitutions.SubstitutionCommands._
   import com.purloux.scala.utils.SafeOperations._
 
@@ -20,11 +21,11 @@ object Comparisons {
     (args : Seq[String]) =>
     (func : (String, String) => String) =>
   {
-    val showError = reportError(id)(params)(args)
+    val input = showCommand(id)(params)(args)
     if (params.length != 2)
-      showError("invalid parameters (2 required)")
+      throw new ParamCommandInvocationException("invalid arguments (2 required)", input)
     else if (args.length != 0)
-      showError("invalid content blocks (0 allowed)")
+      throw new ParamCommandInvocationException("invalid content blocks (0 allowed)", input)
     else
       func(params(0), params(1))
   }
@@ -43,11 +44,14 @@ object Comparisons {
     (args : Seq[String]) =>
     (compare : (Double, Double) => Boolean) =>
   {
-    val showError = reportError(id)(params)(args)
     createComparison(id)(params)(args){ (l, r) => {
       (l.safePerform(_.toDouble), r.safePerform(_.toDouble)) match {
         case (Some(left), Some(right)) => compare(left, right).toString
-        case _ => showError("invalid parameters ((double, double) expected)")
+        case _ => {
+          val message = "invalid arguments ((double, double) expected)"
+          val input = showCommand(id)(params)(args)
+          throw new ParamCommandInvocationException(message, input)
+        }
       }
     }}
   }
@@ -99,7 +103,7 @@ object Comparisons {
   val greaterOrEqual = (params : Seq[String]) => (args : Seq[String]) =>
     createNumericComparison("gt")(params)(args){ (l, r) => l >= r }
 
-  /** Returns the inverse of a "true" or "false" argument 
+  /** Returns the inverse of a "true" or "false" argument
    *
    *  @param value "true" or "false" string resulting
    *  @param params list of parameters provided to the parent "notComparison" function
@@ -110,8 +114,11 @@ object Comparisons {
       "false"
     else if (value == "false")
       "true"
-    else
-      reportError("not")(params)(args)("invalid boolean (" + value + ")")
+    else {
+      val message = "invalid arguments ((boolean) expected - \"$value\" received)"
+      val input = showCommand("not")(params)(args)
+      throw new ParamCommandInvocationException(message, input)
+    }
   }
 
   /** Returns the inverse of a given "true" or "false" value, or the
@@ -122,21 +129,26 @@ object Comparisons {
    *  @param args arguments list (unused)
    */
   val notComparison = (params : Seq[String]) => (args : Seq[String]) => {
-    val showError = reportError("not")(params)(args)
-    if (args.length != 0)
-      showError("invalid content blocks (0 allowed)")
+    val input = showCommand("not")(params)(args)
+    if (args.length != 0) {
+      val message = "invalid content blocks (0 allowed)"
+      throw new ParamCommandInvocationException(message, input)
+    }
     else {
-      if (params.length == 3) {  
+      if (params.length == 3) {
         val funcId = params(0)
         getParamCommand(funcId) match {
           case Some(func) => notInversion(func(params.drop(1))(args))(params)(args)
-          case _          => showError("invalid function name (" + funcId + ")")
+          case _          => throw new UnknownParamCommandException(funcId)
         }
       }
-      else if (params.length == 1)
+      else if (params.length == 1) {
         notInversion(params(0))(params)(args)
-      else 
-        showError("invalid parameters (1 or 3 required)")
+      }
+      else {
+        val message = "invalid arguments (1 or 3 required)"
+        throw new ParamCommandInvocationException(message, input)
+      }
     }
   }
 }

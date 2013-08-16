@@ -17,6 +17,7 @@ class Substitutor(rand : Random,
 {
   import com.purloux.scala.utils.SafeOperations._
   import com.purloux.scala.substitutions.commands.PseudoRandom
+  import com.purloux.scala.substitutions.SubstitutionExceptions._
 
   /** @constructor automatic random number generator and default commands */
   def this() = this(new Random(), Map[String, Command](), Map[String, ParamCommand]())
@@ -137,10 +138,10 @@ class Substitutor(rand : Random,
 
         SubstitutionParser.parseAll(SubstitutionParser.wholeText, result) match {
          case SubstitutionParser.Success(escaped, _) => escaped.substituteEscape()
-         case SubstitutionParser.NoSuccess(_, _) => s"{Parser Failure: ${input}}"
+         case SubstitutionParser.NoSuccess(msg, _) => throw new SubstitutionParserException(msg, input)
         }
       }
-      case SubstitutionParser.NoSuccess(_, _) => s"{Parser Failure: ${input}}"
+      case SubstitutionParser.NoSuccess(msg, _) => throw new SubstitutionParserException(msg, input)
     }
   }
 

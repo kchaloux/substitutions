@@ -2,7 +2,8 @@ package com.purloux.scala.substitutions.commands
 
 /** Defines functions that directly manipulate textual arguments */
 object Manipulations {
-  import com.purloux.scala.substitutions.commands.ErrorReporting._
+  import com.purloux.scala.substitutions.commands.CommandReporting._
+  import com.purloux.scala.substitutions.SubstitutionExceptions._
   import com.purloux.scala.substitutions.SubstitutionCommands._
   import com.purloux.scala.utils.SafeOperations._
 
@@ -16,9 +17,11 @@ object Manipulations {
     (params : Seq[String]) =>
     (args : Seq[String]) =>
   {
-    val showError = reportError("join")(params)(args)
-    if (params.length != 1)
-      showError("invalid parameters ((str) expected)")
+    val input = showCommand("join")(params)(args)
+    if (params.length != 1) {
+      val message = "invalid parameters ((str) expected)"
+      throw new ParamCommandInvocationException(message, input)
+    }
     else
       args.filterNot(_.isEmpty).mkString(params(0))
   }

@@ -2,7 +2,8 @@ package com.purloux.scala.substitutions.commands
 
 /** Defines functions that directly manipulate textual arguments */
 object Generations {
-  import com.purloux.scala.substitutions.commands.ErrorReporting._
+  import com.purloux.scala.substitutions.commands.CommandReporting._
+  import com.purloux.scala.substitutions.SubstitutionExceptions._
   import com.purloux.scala.substitutions.SubstitutionCommands._
   import com.purloux.scala.utils.SafeOperations._
 
@@ -23,11 +24,15 @@ object Generations {
     (params : Seq[String]) =>
     (args : Seq[String]) =>
   {
-    val showError = reportError("dup")(params)(args)
-    if (params.length < 1)
-      showError("missing parameters (1-3 required)")
-    else if (params.length > 3)
-      showError("too many parameters (1-3 required)")
+    val input = showCommand("dup")(params)(args)
+    if (params.length < 1) {
+      val message = "missing arguments (1-3 required)"
+      throw new ParamCommandInvocationException(message, input)
+    }
+    else if (params.length > 3) {
+      val message = "too many arguments (1-3 required)"
+      throw new ParamCommandInvocationException(message, input)
+    }
     else {
       val delim1 = if (params.length >= 2) params(1) else ""
       val delim2 = if (params.length >= 3) params(2) else ""
@@ -38,7 +43,10 @@ object Generations {
           else
             ""
         }
-        case None => showError("invalid parameters ((int, str?, str?) expected)")
+        case None => { 
+          val message = "invalid arguments ((int, str?, str?) expected)"
+          throw new ParamCommandInvocationException(message, input)
+        }
       }
     }
   }

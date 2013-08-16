@@ -2,7 +2,8 @@ package com.purloux.scala.substitutions.commands
 
 /** Defines functions that directly manipulate textual arguments */
 object PseudoRandom {
-  import com.purloux.scala.substitutions.commands.ErrorReporting._
+  import com.purloux.scala.substitutions.commands.CommandReporting._
+  import com.purloux.scala.substitutions.SubstitutionExceptions._
   import com.purloux.scala.substitutions.SubstitutionCommands._
   import com.purloux.scala.utils.SafeOperations._
   import scala.util.Random
@@ -26,11 +27,15 @@ object PseudoRandom {
     (params : Seq[String]) =>
     (args : Seq[String]) =>
   {
-    val showError = reportError("rand")(params)(args)
-    if (params.length != 2)
-      showError("invalid parameters ((int, int) expected)") 
-    else if (args.length != 0)
-      showError("invalid content blocks (0 allowed)")
+    val input = showCommand("rand")(params)(args)
+    if (params.length != 2) {
+      val message = "invalid arguments ((int, int) expected)"
+      throw new ParamCommandInvocationException(message, input)
+    }
+    else if (args.length != 0) {
+      val message = "invalid content blocks (0 allowed)"
+      throw new ParamCommandInvocationException(message, input)
+    }
     else {
       try {
         val boundA = BigInt(params(0).trim)
@@ -49,8 +54,10 @@ object PseudoRandom {
         output.toString
       } 
       catch {
-        case nf:NumberFormatException => showError("invalid parameters ((int, int) expected)")
-        case e:Exception => showError("bad formatting")
+        case nf:NumberFormatException => {  
+          val message = "invalid parameters ((int, int) expected)"
+          throw new ParamCommandInvocationException(message, input)
+        }
       }
     }
   }

@@ -39,4 +39,28 @@ class EscapedSpec extends FlatSpec {
     val result = substitutor.sub(input)
     assert(result === "escape <one> <two> <three>")
   }
+
+  "An ampersand escape" should "replace &lt; with <" in
+    assert(substitutor.sub("&lt;") === "<")
+
+  it should "replace &gt; with >" in
+    assert(substitutor.sub("&gt;") === ">")
+
+  it should "replace &quot; with \"" in
+    assert(substitutor.sub("&quot;") === "\"")
+
+  it should "replace &apos; with '" in
+    assert(substitutor.sub("&apos;") === "'")
+
+  it should "replace &amp; with &" in
+    assert(substitutor.sub("&amp;") === "&")
+
+  it should "reproduce itself if not given any the above contents" in
+    assert(substitutor.sub("&fail;") === "&fail;")
+
+  it should "replace itself from within the middle of plain text" in
+    assert(substitutor.sub("one &lt; two") === "one < two")
+
+  it should "not replace itself when provided inside an escape block" in
+    assert(substitutor.sub("@<&lt;>") === "&lt;")
 }

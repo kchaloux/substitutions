@@ -47,10 +47,19 @@ object SubstitutionElements {
       "<" + elements.map(_.substituteEscape).mkString + ">"
   }
 
-  /** Escaped angle bracket for representing < and > within an Escaped Block */
-  case class EscapedAngleBracket(contents : String) extends SubstitutionElement {
-    def substitute(args : Map[String, Any], substitutor : Substitutor): String = contents
-    def substituteEscape(): String = contents.drop(1)
+  /** XML-Style Escape Characters for otherwise potentially meaningful elements */
+  case class EscapeCharacter(contents : String) extends SubstitutionElement {
+    lazy val getRepresentation = contents.toLowerCase match {
+      case "quot" => "\""
+      case "apos" => "'"
+      case "lt"   => "<"
+      case "gt"   => ">"
+      case "amp" => "&"
+      case _ => s"&$contents;"
+    }
+
+    def substitute(args : Map[String, Any], substitutor : Substitutor): String = s"&$contents;"
+    def substituteEscape(): String = getRepresentation
   }
 
   /** Command or replacement identifier */

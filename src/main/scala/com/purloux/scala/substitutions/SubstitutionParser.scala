@@ -23,24 +23,28 @@ object SubstitutionParser extends RegexParsers {
   private val closeParam  = ")"
   private val openAngle   = "<"
   private val closeAngle  = ">"
+  private val ampersand   = "&"
+  private val semicolon   = ";"
   private val start       = "^".r
   private val end         = "$".r
   private val any         = ".*".r
   private val space       = "\\s*".r
   private val ident       = "[\\w]+".r
+  private val alphaSeq    = "[a-zA-Z]+".r
 
   private def quote(elems : String*) : String     = "\\Q" + elems.mkString + "\\E"
   private def withAny(elems : String*) : Regex    = ("["  + elems.mkString + "]").r
   private def withoutAny(elems : String*) : Regex = ("[^" + elems.mkString + "]").r
 
   def commands        = ( replacement | paramCommand | command )
-  def anyElement      = ( commands | plainText | escapeBlock )
-  def listElement     = ( commands | plainListText | escapeBlock )
-  def paramElement    = ( commands | plainParamText | escapeBlock )
-  def anyEscapeElement = ( escapeText | inertAngleBlock )
+  def anyElement      = ( commands | escapeCharacter | escapeBlock | plainText )
+  def listElement     = ( commands | escapeCharacter | escapeBlock | plainListText )
+  def paramElement    = ( commands | escapeCharacter | escapeBlock | plainParamText )
+  def anyEscapeElement = ( escapeText | escapeCharacter | inertAngleBlock )
   def safeCommandSigil = withAny(sigil) <~ not(withAny(openBrace))
   def safeEscapeSigil  = withAny(sigil) <~ not(withAny(openAngle))
   def safeSigil        = withAny(sigil) <~ not(withAny(openBrace) | withAny(openAngle))
+  def safeAmpersand   = ampersand <~ not(alphaSeq ~ semicolon)
 
   /** Convert a list of strings or characters into a single string */
   def listToString(result: List[java.io.Serializable]): String = result match {
@@ -58,7 +62,7 @@ object SubstitutionParser extends RegexParsers {
 
   /** Match a single uninterrupted PlainText SubstitutionElement */
   def plainText : Parser[PlainText] =
-    rep1 (withoutAny(sigil) | safeSigil ) ^^
+    rep1 (withoutAny(sigil, ampersand) | safeSigil | safeAmpersand ) ^^
       { case (contents) => PlainText(listToString(contents)) }
 
   /** Match a single uninterrupted PlainText SubstitutionElement
@@ -128,4 +132,7 @@ object SubstitutionParser extends RegexParsers {
   def escapeBlock : Parser[EscapeBlock] =
     (sigil ~ openAngle ~> (anyEscapeElement *) <~ closeAngle) ^^ EscapeBlock
 
+  /** Match a single XML-Style ampersand-escaped character */
+  def escapeCharacter : Parser[EscapeCharacter] =
+    ampersand ~> alphaSeq <~ semicolon ^^ EscapeCharacter
 }

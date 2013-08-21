@@ -91,7 +91,7 @@ object SubstitutionElements {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String =
       args.get(ident.name.toLowerCase) match {
         case Some(value) => value.toString
-        case None        => s"@{${ident.name.toLowerCase}}"
+        case None        => s"@{${ident.name}}"
       }
 
     def substituteEscape(): String = "@{" + ident.name + "}"

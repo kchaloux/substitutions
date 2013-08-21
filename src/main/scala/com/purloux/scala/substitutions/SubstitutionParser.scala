@@ -29,7 +29,7 @@ object SubstitutionParser extends RegexParsers {
   private val end         = "$".r
   private val any         = ".*".r
   private val space       = "\\s*".r
-  private val ident       = "[\\w]+".r
+  private val ident       = "[\\w-]+".r
   private val alphaSeq    = "[a-zA-Z]+".r
 
   private def quote(elems : String*) : String     = "\\Q" + elems.mkString + "\\E"
@@ -39,7 +39,7 @@ object SubstitutionParser extends RegexParsers {
   def commands        = ( replacement | paramCommand | command )
   def anyElement      = ( commands | escapeCharacter | escapeBlock | plainText )
   def listElement     = ( commands | escapeCharacter | escapeBlock | plainListText )
-  def paramElement    = ( commands | escapeCharacter | escapeBlock | plainParamText )
+  def argumentElement  = ( commands | escapeCharacter | escapeBlock | plainArgumentText )
   def anyEscapeElement = ( escapeText | escapeCharacter | inertAngleBlock )
   def safeCommandSigil = withAny(sigil) <~ not(withAny(openBrace))
   def safeEscapeSigil  = withAny(sigil) <~ not(withAny(openAngle))
@@ -76,46 +76,48 @@ object SubstitutionParser extends RegexParsers {
   /** Match a single uninterrupted PlainText SubstitutionElement
    *  excluding special characters designated for parameter lists, delimiters and commands
    */
-  def plainParamText : Parser[PlainText] = {
+  def plainArgumentText : Parser[PlainText] = {
     (rep1 ( withoutAny(sigil, quote(openParam, closeParam, delimParam)) | safeSigil )) ^^
       {  case(contents) => PlainText(listToString(contents)) }
   }
 
   /** Match a parameter list comprising any number of elements */
-  def paramList = {
-    openParam ~> ( repsep((paramElement *), delimParam) ) <~ closeParam ^^
+  def argumentList = {
+    openParam ~> ( repsep((argumentElement *), delimParam) ) <~ closeParam ^^
       { case(blocks) => ElementsList(blocks.map(ElementBlock)) }
   }
 
   /** Match an argument list comprising any number of elements */
-  def argumentList = {
+  def contentsList = {
     openList ~> ( repsep((listElement *), delimList) ) <~ closeList ^^
       { case(blocks) => ElementsList(blocks.map(ElementBlock)) }
   }
 
   /** Match a single Replacement SubstitutionElement with one Identifier */
   def replacement : Parser[Replacement] = {
-    (sigil ~ openBrace ~ space ~> ident <~ space <~ closeBrace) ^^
-      { case (id) => Replacement(Identifier(id)) }
+    (sigil ~ openBrace ~ space ~> identifier <~ space <~ closeBrace) ^^ Replacement
   }
 
   /** Match a single Command SubstitutionElement with an argument list */
   def command : Parser[Command] = {
-    sigil ~ openBrace ~ space ~> ident ~ space ~ argumentList <~ space ~ closeBrace ^^
-      { case (id ~ s ~ list) => Command(Identifier(id), list) }
+    sigil ~ openBrace ~ space ~> identifier ~ space ~ contentsList <~ space ~ closeBrace ^^
+      { case (id ~ s ~ list) => Command(id, list) }
   }
+
+  def identifier : Parser[Identifier] =
+    ident ^^ { case(name) => Identifier(name.toLowerCase) }
 
   /** Match a single ParameterizedCommand SubstitutionElement with a
    *  parameter list and an argument list
    */
   def paramCommand : Parser[ParameterizedCommand] = {
-    ((sigil ~ openBrace ~ space ~> ident ~ space ~ paramList ~
-        space ~ opt(argumentList) <~ space ~ closeBrace)) ^^
+    ((sigil ~ openBrace ~ space ~> identifier ~ space ~ argumentList ~
+        space ~ opt(contentsList) <~ space ~ closeBrace)) ^^
       {
         case (id ~ s1 ~ params ~ s2 ~ Some(list)) =>
-          ParameterizedCommand(Identifier(id), params, list)
+          ParameterizedCommand(id, params, list)
         case (id ~ s1 ~ params ~ s2 ~ None) =>
-          ParameterizedCommand(Identifier(id), params, ElementsList(Seq[ElementBlock]()))
+          ParameterizedCommand(id, params, ElementsList(Seq[ElementBlock]()))
       }
   }
 

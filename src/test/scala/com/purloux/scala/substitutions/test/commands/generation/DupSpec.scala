@@ -1,8 +1,8 @@
-package com.purloux.scala.substitutions.test
+package com.purloux.scala.substitutions.test.commands.generation
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class GenerationDup extends FlatSpec {
+class DupSpec extends FlatSpec {
 
   "A Dup manipulation" should "duplicate a single argument's contents the provided number of times" in {
     val input = "@{dup(10)[-]}"

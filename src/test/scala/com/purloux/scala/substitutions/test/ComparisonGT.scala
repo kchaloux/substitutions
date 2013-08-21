@@ -1,5 +1,5 @@
 package com.purloux.scala.substitutions.test
-import com.purloux.scala.substitutions.test.DefaultSubstitutor._
+import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
 class ComparisonGT extends FlatSpec {

@@ -1,4 +1,4 @@
-package com.purloux.scala.substitutions.test
+package com.purloux.scala.substitutions.test.commands.comparisons
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 

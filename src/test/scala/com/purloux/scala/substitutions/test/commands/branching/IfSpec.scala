@@ -1,8 +1,8 @@
-package com.purloux.scala.substitutions.test
+package com.purloux.scala.substitutions.test.commands.branching
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class BranchingIf extends FlatSpec {
+class IfSpec extends FlatSpec {
   
   "An If branch" should "select the leftmost branch when provided 'true'" in {
     val input = "@{if(true)[true|false]}"

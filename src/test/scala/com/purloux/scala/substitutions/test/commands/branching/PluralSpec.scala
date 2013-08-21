@@ -1,8 +1,8 @@
-package com.purloux.scala.substitutions.test
+package com.purloux.scala.substitutions.test.commands.branching
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class BranchingPlural extends FlatSpec {
+class PluralSpec extends FlatSpec {
   
   "A Plural branch" should "select the leftmost branch for numeric inputs of 1" in {
     val input = "@{plural (1) [apple|apples]}"

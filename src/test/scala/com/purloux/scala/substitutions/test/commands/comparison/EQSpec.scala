@@ -2,16 +2,16 @@ package com.purloux.scala.substitutions.test
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class ComparisonLT extends FlatSpec {
+class EQSpec extends FlatSpec {
   
-  "An LT comparison" should "yield 'true' when the first argument is less than the second" in {
-    val input = "@{lt(0, 1)}"
+  "An EQ comparison" should "yield 'true' for any values with string equality" in {
+    val input = "@{eq(a, a)}"
     val result = substitutor.sub(input)
     assert(result === "true")
   }
 
-  it should "yield 'false' when the first argument is not less than the second" in {
-    val input = "@{lt(0, 0)}"
+  it should "yield 'false' for any values without string equality" in {
+    val input = "@{eq(a, b)}"
     val result = substitutor.sub(input)
     assert(result === "false")
   }

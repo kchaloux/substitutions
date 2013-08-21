@@ -2,16 +2,16 @@ package com.purloux.scala.substitutions.test
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class ComparisonEQ extends FlatSpec {
-  
-  "An EQ comparison" should "yield 'true' for any values with string equality" in {
-    val input = "@{eq(a, a)}"
+class GTESpec extends FlatSpec {
+
+  "A GTE comparison" should "yield 'true' for a first argument greater-or-equal to the second" in {
+    val input = "@{gte(0,0)}"
     val result = substitutor.sub(input)
     assert(result === "true")
   }
 
-  it should "yield 'false' for any values without string equality" in {
-    val input = "@{eq(a, b)}"
+  it should "yield 'false' for a first argument not greater-or-equal to the second" in {
+    val input = "@{gte(0,1)}"
     val result = substitutor.sub(input)
     assert(result === "false")
   }

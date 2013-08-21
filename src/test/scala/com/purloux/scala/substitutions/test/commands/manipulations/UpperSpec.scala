@@ -1,8 +1,8 @@
-package com.purloux.scala.substitutions.test
+package com.purloux.scala.substitutions.test.commands.manipulations
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class ManipulationUpper extends FlatSpec {
+class UpperSpec extends FlatSpec {
   
   "An Upper manipulation" should "replace any arguments with uppercase arguments" in {
     val input = "@{upper[ONE Two 123]}"

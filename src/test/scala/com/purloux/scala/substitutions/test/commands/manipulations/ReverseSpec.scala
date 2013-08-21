@@ -1,8 +1,8 @@
-package com.purloux.scala.substitutions.test
+package com.purloux.scala.substitutions.test.commands.manipulations
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class ManipulationReverse extends FlatSpec {
+class ReverseSpec extends FlatSpec {
   
   "A Reverse manipulation" should "reverse the contents of an argument" in {
     val input = "@{reverse[dracula]}"

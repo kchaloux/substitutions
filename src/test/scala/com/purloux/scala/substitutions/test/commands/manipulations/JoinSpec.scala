@@ -1,8 +1,8 @@
-package com.purloux.scala.substitutions.test
+package com.purloux.scala.substitutions.test.commands.manipulations
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class ManipulationJoin extends FlatSpec {
+class JoinSpec extends FlatSpec {
 
   "A Join manipulation" should "intercalate a list of arguments with a separator" in {
     val input = "@{join (-) [a|b|c]}"

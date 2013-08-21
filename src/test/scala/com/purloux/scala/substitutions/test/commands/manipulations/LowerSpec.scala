@@ -1,8 +1,8 @@
-package com.purloux.scala.substitutions.test
+package com.purloux.scala.substitutions.test.commands.manipulations
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class ManipulationLower extends FlatSpec {
+class LowerSpec extends FlatSpec {
   
   "A Lower manipulation" should "replace any arguments with lowercase arguments" in {
     val input = "@{lower[ONE Two 123]}"

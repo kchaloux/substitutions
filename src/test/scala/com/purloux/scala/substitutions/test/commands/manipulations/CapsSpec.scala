@@ -1,8 +1,8 @@
-package com.purloux.scala.substitutions.test
+package com.purloux.scala.substitutions.test.commands.manipulations
 import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import org.scalatest.FlatSpec
 
-class ManipulationCaps extends FlatSpec {
+class CapsSpec extends FlatSpec {
   
   "A Caps manipulation" should "replace any arguments with capitalized arguments" in {
     val input = "@{caps[ONE Two 123]}"

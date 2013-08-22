@@ -130,14 +130,14 @@ class Substitutor(rand : Random,
    *  @param args arguments to use for replacements
    */
   def sub(input : String, args : Map[String, Any]): String = {
-    val arguments = args ++ specialCases
+    val arguments = (args ++ specialCases).map { case(k, v) => (k.toLowerCase, v) }
 
     SubstitutionParser.parseAll(SubstitutionParser.wholeText, input) match {
       case SubstitutionParser.Success(output, _) => {
         val result = output.substitute(arguments, this)
 
         SubstitutionParser.parseAll(SubstitutionParser.wholeText, result) match {
-         case SubstitutionParser.Success(escaped, _) => escaped.substituteEscape()
+         case SubstitutionParser.Success(escaped, _) => escaped.substituteEscape
          case SubstitutionParser.NoSuccess(msg, _) => throw new SubstitutionParserException(msg, input)
         }
       }

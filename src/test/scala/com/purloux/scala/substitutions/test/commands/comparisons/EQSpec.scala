@@ -1,8 +1,9 @@
 package com.purloux.scala.substitutions.test.commands.comparisons
-import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
+import com.purloux.scala.substitutions.Substitutor
 import org.scalatest.FlatSpec
 
 class EQSpec extends FlatSpec {
+  val substitutor = new Substitutor().withRandomSeed(0)
   
   "An EQ comparison" should "yield 'true' for any values with string equality" in {
     val input = "@{eq(a, a)}"

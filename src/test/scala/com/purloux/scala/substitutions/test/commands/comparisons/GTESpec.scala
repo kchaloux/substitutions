@@ -1,8 +1,9 @@
 package com.purloux.scala.substitutions.test.commands.comparisons
-import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
+import com.purloux.scala.substitutions.Substitutor
 import org.scalatest.FlatSpec
 
 class GTESpec extends FlatSpec {
+  val substitutor = new Substitutor().withRandomSeed(0)
 
   "A GTE comparison" should "yield 'true' for a first argument greater-or-equal to the second" in {
     val input = "@{gte(0,0)}"

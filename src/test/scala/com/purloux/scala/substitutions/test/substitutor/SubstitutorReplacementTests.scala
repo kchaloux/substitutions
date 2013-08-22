@@ -1,9 +1,10 @@
 package com.purloux.scala.substitutions.test.substitutor
-import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import com.purloux.scala.substitutions.Substitutor
 import org.scalatest.FlatSpec
 
 class SubstitutorReplacementTests extends FlatSpec {
+  val substitutor = new Substitutor().withRandomSeed(0)
+  
   "A Substitutor replacement substitution" should "replace the input contents with a map value" in {
     val input = "@{replace_me}"
     val result = substitutor.sub(input, Map("replace_me" -> "replaced"))

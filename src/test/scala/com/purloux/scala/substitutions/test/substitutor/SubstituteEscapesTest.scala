@@ -1,8 +1,10 @@
 package com.purloux.scala.substitutions.test.substitutor
-import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
+import com.purloux.scala.substitutions.Substitutor
 import org.scalatest.FlatSpec
 
 class SubstituteEscapesTests extends FlatSpec {
+  val substitutor = new Substitutor().withRandomSeed(0)
+  
   "An Escaped element" should "return its inner contents without other substitutions" in {
     val input = "@<@{rand}>"
     val result = substitutor.sub(input)

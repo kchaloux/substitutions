@@ -1,9 +1,10 @@
 package com.purloux.scala.substitutions.test.substitutor
-import com.purloux.scala.substitutions.test.utility.DefaultSubstitutor._
 import com.purloux.scala.substitutions.Substitutor
 import org.scalatest.FlatSpec
 
 class SubstitutorMultilineTests extends FlatSpec {
+  val substitutor = new Substitutor().withRandomSeed(0)
+
   "A Substitutor multiline substitution" should "format multiline strings without newlines" in {
     val template =
     """

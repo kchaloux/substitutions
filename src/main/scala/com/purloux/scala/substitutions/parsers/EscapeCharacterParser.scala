@@ -1,10 +1,10 @@
-package com.purloux.scala.substitutions
+package com.purloux.scala.substitutions.parsers
 import scala.util.parsing.combinator.RegexParsers
 import scala.language.postfixOps
 
 /** Post-processor parser for special escape characters */
 object EscapeCharacterParser extends RegexParsers with ParserPatterns {
-  import SubstitutionElements._
+  import com.purloux.scala.substitutions.SubstitutionElements._
   import util.matching.Regex
   override val skipWhitespace = false
 

@@ -1,4 +1,5 @@
 package com.purloux.scala.substitutions
+import com.purloux.scala.substitutions.parsers._
 import com.purloux.scala.substitutions.CommandTypes._
 import scala.util.Random
 

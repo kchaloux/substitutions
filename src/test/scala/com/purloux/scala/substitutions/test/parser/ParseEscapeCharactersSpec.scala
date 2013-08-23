@@ -1,5 +1,5 @@
 package com.purloux.scala.substitutions.test.parser
-import com.purloux.scala.substitutions.EscapeCharacterParser
+import com.purloux.scala.substitutions.parsers.EscapeCharacterParser
 import com.purloux.scala.substitutions.SubstitutionElements._
 import com.purloux.scala.substitutions.test.utility.ParserMatcher
 import org.scalatest.FlatSpec

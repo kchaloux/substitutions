@@ -1,4 +1,4 @@
-package com.purloux.scala.substitutions
+package com.purloux.scala.substitutions.parsers
 import scala.util.parsing.combinator.RegexParsers
 import scala.language.postfixOps
 

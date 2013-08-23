@@ -44,17 +44,26 @@ class SubstituteEscapesTests extends FlatSpec {
   "An ampersand escape" should "replace &lt; with <" in
     assert(substitutor.sub("&lt;") === "<")
 
+  it should "replace &less; with <" in
+    assert(substitutor.sub("&less;") === "<")
+
   it should "replace &gt; with >" in
     assert(substitutor.sub("&gt;") === ">")
 
-  it should "replace &quot; with \"" in
-    assert(substitutor.sub("&quot;") === "\"")
+  it should "replace &greater; with >" in
+    assert(substitutor.sub("&greater;") === ">")
 
-  it should "replace &apos; with '" in
-    assert(substitutor.sub("&apos;") === "'")
+  it should "replace &br; with a newline" in
+    assert(substitutor.sub("&br;") === "\n") 
 
-  it should "replace &amp; with &" in
-    assert(substitutor.sub("&amp;") === "&")
+  it should "replace &break; with a newline" in
+    assert(substitutor.sub("&break;") === "\n")
+
+  it should "replace $at; with @" in
+    assert(substitutor.sub("&at;") === "@")
+
+  it should "replace &sigil; with @" in
+    assert(substitutor.sub("&sigil;") === "@")
 
   it should "reproduce itself if not given any the above contents" in
     assert(substitutor.sub("&fail;") === "&fail;")
@@ -65,7 +74,6 @@ class SubstituteEscapesTests extends FlatSpec {
   it should "replace itself when provided inside an escape block" in
     assert(substitutor.sub("@<&lt;>") === "<")
 
-  it should "replace itself when provided inside a nested escape block" in {
+  it should "replace itself when provided inside a nested escape block" in
     assert(substitutor.sub("@<@<&lt;>>") === "@<<>")
-  }
 }

@@ -11,7 +11,6 @@ object SpecialCases {
 
   /** Special substitution values automatically registered */
   val specialCases = Map[String, Any](
-    stopSpace -> stopSpace,
-    "br"      -> "\n"
+    stopSpace -> stopSpace
   )
 }

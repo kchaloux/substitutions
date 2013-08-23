@@ -52,11 +52,10 @@ object SubstitutionElements {
   /** XML-Style Escape Characters for otherwise potentially meaningful elements */
   case class EscapeCharacter(contents : String) extends SubstitutionElement {
     lazy val symbol = contents.toLowerCase match {
-      case "quot" => "\""
-      case "apos" => "'"
-      case "lt"   => "<"
-      case "gt"   => ">"
-      case "amp" => "&"
+      case "lt" | "less"    => "<"
+      case "gt" | "greater" => ">"
+      case "br" | "break"   => "\n"
+      case "at" | "sigil"   => "@"
       case _ => s"&$contents;"
     }
 

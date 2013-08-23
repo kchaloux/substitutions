@@ -1,15 +1,13 @@
 package com.purloux.scala.substitutions.test.parser
-import com.purloux.scala.substitutions.SubstitutionParser._
+import com.purloux.scala.substitutions.SubstitutionParser
 import com.purloux.scala.substitutions.SubstitutionElements._
-import com.purloux.scala.substitutions.test.utility.ParserMatchers._
+import com.purloux.scala.substitutions.test.utility.ParserMatcher
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.matchers.Matcher
-import org.scalatest.matchers.MatchResult
 
 class ParseEscapeBlockSpec extends FlatSpec with ShouldMatchers {
-
-  val matchEscapeBlock = MatchParser[EscapeBlock]("EscapeBlock", escapeBlock)
+  val matcher = ParserMatcher(SubstitutionParser)
+  val matchEscapeBlock = matcher.MatchParser("EscapeBlock")( _.escapeBlock )
 
   "An escape block" should "match any element following the for @<escaped>" in {
     "@<escaped>" should matchEscapeBlock

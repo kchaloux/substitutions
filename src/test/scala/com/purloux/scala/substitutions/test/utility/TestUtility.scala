@@ -1,19 +1,21 @@
 package com.purloux.scala.substitutions.test.utility
-import com.purloux.scala.substitutions.SubstitutionParser._
 import com.purloux.scala.substitutions.SubstitutionElements._
+import scala.util.parsing.combinator.RegexParsers
 import org.scalatest.matchers.Matcher
 import org.scalatest.matchers.MatchResult
 
-object ParserMatchers {
-
-  def MatchListElements(parserName : String, parser : Parser[ElementsList]) = {
+case class ParserMatcher[C <: RegexParsers](val parserCombinator : C) {
+  def MatchListElements(parserName : String)
+    (getParser : C => parserCombinator.Parser[ElementsList]) =
+  {
+    val parser = getParser(parserCombinator)
     Matcher { (input : (String, Seq[String])) =>
       val inputText = input._1
       val expectedElements = input._2
       MatchResult (
-        parseAll(parser, inputText) match {
-          case Success(lst, _) => {
-            val actualElements = lst.blocks.map(_.elements.map(_.substituteEscape).mkString)
+        parserCombinator.parseAll(parser, inputText) match {
+          case parserCombinator.Success(lst, _) => {
+            val actualElements = lst.blocks.map(_.elements.map(_.substituteEscaped).mkString)
             (expectedElements, actualElements).zipped.map { case(exp, act) => exp == act }
                                               .foldLeft(true)(_ && _)
           }
@@ -27,16 +29,17 @@ object ParserMatchers {
     }
   }
 
-  def MatchParser[A <: SubstitutionElement](
-    parserName : String,
-    parser : Parser[A],
-    validate : (A, String) => Boolean): Matcher[String] =
+  def MatchValidatedParser[E <: SubstitutionElement]
+    (parserName : String)
+    (getParser : C => parserCombinator.Parser[E])
+    (validate : (E, String) => Boolean): Matcher[String] =
   {
+    val parser = getParser(parserCombinator)
     Matcher { (input : String) =>
       MatchResult (
-        parseAll(parser, input) match {
-          case Success(elem, _) => validate(elem, input)
-          case _                => false
+        parserCombinator.parseAll(parser, input) match {
+          case parserCombinator.Success(elem, _) => validate(elem, input)
+          case _                                 => false
         },
         s"$parserName did not match `$input`",
         s"$parserName successfully matched `$input`"
@@ -44,10 +47,10 @@ object ParserMatchers {
     }
   }
 
-  def MatchParser[A <: SubstitutionElement](
-    parserName : String,
-    parser : Parser[A]): Matcher[String] =
+  def MatchParser[E <: SubstitutionElement]
+    (parserName : String)
+    (getParser : C => parserCombinator.Parser[E]): Matcher[String] =
   { 
-    MatchParser(parserName, parser, { (elem : A, input : String) => true })
+    MatchValidatedParser(parserName)(getParser) { (a, b) => true }
   }
 }

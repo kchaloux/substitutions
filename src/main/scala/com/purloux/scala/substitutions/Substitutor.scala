@@ -133,12 +133,15 @@ class Substitutor(rand : Random,
     val arguments = (args ++ specialCases).map { case(k, v) => (k.toLowerCase, v) }
 
     SubstitutionParser.parseAll(SubstitutionParser.wholeText, input) match {
-      case SubstitutionParser.Success(output, _) => {
-        val result = output.substitute(arguments, this)
-
-        SubstitutionParser.parseAll(SubstitutionParser.wholeText, result) match {
-         case SubstitutionParser.Success(escaped, _) => escaped.substituteEscape
-         case SubstitutionParser.NoSuccess(msg, _) => throw new SubstitutionParserException(msg, input)
+      case SubstitutionParser.Success(a, _) => {
+        SubstitutionParser.parseAll(SubstitutionParser.wholeText, a.substitute(arguments, this)) match {
+          case SubstitutionParser.Success(b, _) => {
+            EscapeCharacterParser.parseAll(EscapeCharacterParser.wholeText, b.substituteEscaped) match {
+              case EscapeCharacterParser.Success(c, _) => c.substituteEscapedCharacters
+              case EscapeCharacterParser.NoSuccess(msg, _) => throw new SubstitutionParserException(msg, input)
+            }
+          }
+          case SubstitutionParser.NoSuccess(msg, _) => throw new SubstitutionParserException(msg, input)
         }
       }
       case SubstitutionParser.NoSuccess(msg, _) => throw new SubstitutionParserException(msg, input)

@@ -1,19 +1,14 @@
 package com.purloux.scala.substitutions.test.parser
-import com.purloux.scala.substitutions.SubstitutionParser._
+import com.purloux.scala.substitutions.SubstitutionParser
 import com.purloux.scala.substitutions.SubstitutionElements._
-import com.purloux.scala.substitutions.test.utility.ParserMatchers._
+import com.purloux.scala.substitutions.test.utility.ParserMatcher
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.matchers.Matcher
-import org.scalatest.matchers.MatchResult
 
 class ParseReplacementSpec extends FlatSpec with ShouldMatchers {
-  
-  val matchReplacement = MatchParser[Replacement]("Replacement", replacement, {
-    (rp : Replacement, input : String) => {
-      rp.ident.name == input.substring(2, input.length - 1).trim
-    }
-  })
+  val matcher = ParserMatcher(SubstitutionParser)
+  val matchReplacement = matcher.MatchValidatedParser("Replacement")( _.replacement )
+    { (rp, input) => rp.ident.name == input.substring(2, input.length - 1).trim }
 
   "A Replacement element" should "match a sequence following the form @{identifier}" in {
     "@{replacement}" should matchReplacement
@@ -43,13 +38,13 @@ class ParseReplacementSpec extends FlatSpec with ShouldMatchers {
     val input1 = "@{replacement}"
     val input2 = "@{REPLACEMENT}"
 
-    val replace1 = parseAll(replacement, input1) match {
-      case Success(rp, _) => rp
+    val replace1 = SubstitutionParser.parseAll(SubstitutionParser.replacement, input1) match {
+      case SubstitutionParser.Success(rp, _) => rp
       case _              => fail(s"Unable to parse `$input1`")
     }
 
-    val replace2 = parseAll(replacement, input2) match {
-      case Success(rp, _) => rp
+    val replace2 = SubstitutionParser.parseAll(SubstitutionParser.replacement, input2) match {
+      case SubstitutionParser.Success(rp, _) => rp
       case _              => fail(s"Unable to parse `$input2`")
     }
 

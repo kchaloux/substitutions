@@ -1,15 +1,13 @@
 package com.purloux.scala.substitutions.test.parser
-import com.purloux.scala.substitutions.SubstitutionParser._
+import com.purloux.scala.substitutions.EscapeCharacterParser
 import com.purloux.scala.substitutions.SubstitutionElements._
-import com.purloux.scala.substitutions.test.utility.ParserMatchers._
+import com.purloux.scala.substitutions.test.utility.ParserMatcher
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.matchers.Matcher
-import org.scalatest.matchers.MatchResult
 
 class ParseEscapeCharactersSpec extends FlatSpec with ShouldMatchers {
-
-  val matchEscape = MatchParser[EscapeCharacter]("EscapeCharacter", escapeCharacter)
+  val matcher = ParserMatcher(EscapeCharacterParser)
+  val matchEscape = matcher.MatchParser("EscapeCharacter")( _.escapeCharacter )
 
   "An XML-Style escape" should "match &lt;" in { "&lt;" should matchEscape }
   it should "match &gt;" in { "&gt;" should matchEscape }

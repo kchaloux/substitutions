@@ -1,16 +1,14 @@
 package com.purloux.scala.substitutions.test.parser
-import com.purloux.scala.substitutions.SubstitutionParser._
+import com.purloux.scala.substitutions.SubstitutionParser
 import com.purloux.scala.substitutions.SubstitutionElements._
-import com.purloux.scala.substitutions.test.utility.ParserMatchers._
+import com.purloux.scala.substitutions.test.utility.ParserMatcher
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.matchers.Matcher
-import org.scalatest.matchers.MatchResult
 
 class ParseArgumentsListSpec extends FlatSpec with ShouldMatchers {
-
-  val matchElements = MatchListElements("ArgumentList", argumentList)
-  val matchArgumentsList = MatchParser[ElementsList]("ArgumentList", argumentList)
+  val matcher = ParserMatcher(SubstitutionParser)
+  val matchElements = matcher.MatchListElements("ArgumentList")( _.argumentList )
+  val matchArgumentsList = matcher.MatchParser("ArgumentList")( _.argumentList )
 
   "An Argument List" should "match elements surrounded with (parentheses)" in {
     "(parentheses)" should matchArgumentsList

@@ -62,6 +62,10 @@ class SubstituteEscapesTests extends FlatSpec {
   it should "replace itself from within the middle of plain text" in
     assert(substitutor.sub("one &lt; two") === "one < two")
 
-  it should "not replace itself when provided inside an escape block" in
-    assert(substitutor.sub("@<&lt;>") === "&lt;")
+  it should "replace itself when provided inside an escape block" in
+    assert(substitutor.sub("@<&lt;>") === "<")
+
+  it should "replace itself when provided inside a nested escape block" in {
+    assert(substitutor.sub("@<@<&lt;>>") === "@<<>")
+  }
 }

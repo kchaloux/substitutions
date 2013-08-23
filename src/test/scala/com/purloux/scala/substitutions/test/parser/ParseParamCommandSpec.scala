@@ -1,15 +1,15 @@
 package com.purloux.scala.substitutions.test.parser
-import com.purloux.scala.substitutions.SubstitutionParser._
+import com.purloux.scala.substitutions.SubstitutionParser
 import com.purloux.scala.substitutions.SubstitutionElements._
-import com.purloux.scala.substitutions.test.utility.ParserMatchers._
+import com.purloux.scala.substitutions.test.utility.ParserMatcher
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.matchers.Matcher
 import org.scalatest.matchers.MatchResult
 
 class ParseParamCommandSpec extends FlatSpec with ShouldMatchers {
-
-  val matchParamCommand = MatchParser[ParameterizedCommand]("ParamCommand", paramCommand)
+  val matcher = ParserMatcher(SubstitutionParser)
+  val matchParamCommand = matcher.MatchParser("ParamCommand")( _.paramCommand )
 
   "A Parameterized Command element" should "match any block of the form @{id (...) [...]}" in {
     "@{pcommand (...) [...]}" should matchParamCommand

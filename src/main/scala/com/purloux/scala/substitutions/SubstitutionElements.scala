@@ -15,41 +15,43 @@ object SubstitutionElements {
      */
     def substitute(args : Map[String, Any], substitutor : Substitutor): String
 
-    /** Returns the substituted value of an element that has been escaped
-     * 
-     *  @param args replacement value mapping
-     *  @param substitutor instance used to invoke substitution commands
+    /** Returns the substituted value of an element that has been escaped */
+    def substituteEscaped(): String
+
+    /** Returns the substituted values of elements during the final escape-characters
+     *  pass of a string to remove all XML-style &amp; escapes
      */
-    def substituteEscape(): String
+    def substituteEscapedCharacters(): String = 
+      substituteEscaped
   }
 
   /** Plaintext element with no substitution logic */
   case class PlainText(contents : String) extends SubstitutionElement {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String = contents
-    def substituteEscape(): String = contents
+    def substituteEscaped(): String = contents
   }
 
   /** Block of potentially nested escaped elements */
   case class EscapeBlock(elements : Seq[SubstitutionElement]) extends SubstitutionElement {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String =
-      "@<" + elements.map(_.substituteEscape).mkString + ">"
+      "@<" + elements.map(_.substituteEscaped).mkString + ">"
     
-    def substituteEscape(): String =
-      elements.map(_.substituteEscape).mkString
+    def substituteEscaped(): String =
+      elements.map(_.substituteEscaped).mkString
   }
 
   /** Inert escape block consisting of just two angle brackets with content that must be matched */
   case class InertAngleBlock(elements : Seq[SubstitutionElement]) extends SubstitutionElement {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String =
-      "<" + elements.map(_.substituteEscape).mkString + ">"
+      "<" + elements.map(_.substituteEscaped).mkString + ">"
     
-    def substituteEscape(): String =
-      "<" + elements.map(_.substituteEscape).mkString + ">"
+    override def substituteEscaped(): String =
+      "<" + elements.map(_.substituteEscaped).mkString + ">"
   }
 
   /** XML-Style Escape Characters for otherwise potentially meaningful elements */
   case class EscapeCharacter(contents : String) extends SubstitutionElement {
-    lazy val getRepresentation = contents.toLowerCase match {
+    lazy val symbol = contents.toLowerCase match {
       case "quot" => "\""
       case "apos" => "'"
       case "lt"   => "<"
@@ -58,14 +60,17 @@ object SubstitutionElements {
       case _ => s"&$contents;"
     }
 
-    def substitute(args : Map[String, Any], substitutor : Substitutor): String = s"&$contents;"
-    def substituteEscape(): String = getRepresentation
+    lazy val representation = s"&$contents;"
+
+    def substitute(args : Map[String, Any], substitutor : Substitutor): String = representation
+    def substituteEscaped(): String = representation
+    override def substituteEscapedCharacters(): String = symbol
   }
 
   /** Command or replacement identifier */
   case class Identifier(name : String) extends SubstitutionElement {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String = ""
-    def substituteEscape(): String = ""
+    def substituteEscaped(): String = ""
   }
 
   /** Full set of parsed Substitution Elements in sequence */
@@ -73,8 +78,11 @@ object SubstitutionElements {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String =
       elements.map(_.substitute(args, substitutor)).mkString
 
-    def substituteEscape(): String =
-      elements.map(_.substituteEscape).mkString
+    def substituteEscaped(): String =
+      elements.map(_.substituteEscaped).mkString
+
+    override def substituteEscapedCharacters(): String =
+      elements.map(_.substituteEscapedCharacters).mkString
   }
 
   /** List of separate parsed ElementBlocks (such as an Argument List) */
@@ -82,8 +90,11 @@ object SubstitutionElements {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String =
       blocks.map(_.substitute(args, substitutor)).mkString
 
-    def substituteEscape(): String =
-      blocks.map(_.substituteEscape).mkString
+    def substituteEscaped(): String =
+      blocks.map(_.substituteEscaped).mkString
+
+    override def substituteEscapedCharacters(): String =
+      blocks.map(_.substituteEscapedCharacters).mkString
   }
 
   /** Replacement element to be directly substituted with a single string */
@@ -94,7 +105,7 @@ object SubstitutionElements {
         case None        => s"@{${ident.name}}"
       }
 
-    def substituteEscape(): String = "@{" + ident.name + "}"
+    def substituteEscaped(): String = "@{" + ident.name + "}"
   }
 
   /** Unparameterized command replacement to be substituted with one of
@@ -109,8 +120,8 @@ object SubstitutionElements {
       transform(replacedContents)
     }
 
-    def substituteEscape(): String = {
-      val escapeContents = contents.blocks.map(_.substituteEscape)
+    def substituteEscaped(): String = {
+      val escapeContents = contents.blocks.map(_.substituteEscaped)
       showCommand(ident.name)(Seq[String]())(escapeContents)
     }
   }
@@ -131,9 +142,9 @@ object SubstitutionElements {
       transform(replacedContents)
     }
 
-    def substituteEscape(): String = { 
-      val escapeContents = contents.blocks.map(_.substituteEscape)
-      val escapeParams = params.blocks.map(_.substituteEscape)
+    def substituteEscaped(): String = { 
+      val escapeContents = contents.blocks.map(_.substituteEscaped)
+      val escapeParams = params.blocks.map(_.substituteEscaped)
       showCommand(ident.name)(escapeParams)(escapeContents)
     }
   }

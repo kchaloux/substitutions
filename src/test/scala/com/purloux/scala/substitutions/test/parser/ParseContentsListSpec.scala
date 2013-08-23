@@ -1,16 +1,14 @@
 package com.purloux.scala.substitutions.test.parser
-import com.purloux.scala.substitutions.SubstitutionParser._
+import com.purloux.scala.substitutions.SubstitutionParser
 import com.purloux.scala.substitutions.SubstitutionElements._
-import com.purloux.scala.substitutions.test.utility.ParserMatchers._
+import com.purloux.scala.substitutions.test.utility.ParserMatcher
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.matchers.Matcher
-import org.scalatest.matchers.MatchResult
 
 class ParseContentsListSpec extends FlatSpec with ShouldMatchers {
-  
-  val matchElements = MatchListElements("ContentsList", contentsList)
-  val matchContentsList = MatchParser[ElementsList]("ContentsList", contentsList)
+  val matcher = ParserMatcher(SubstitutionParser)
+  val matchElements = matcher.MatchListElements("ContentsList")( _.contentsList )
+  val matchContentsList = matcher.MatchParser("ContentsList")( _.contentsList )
 
   "A Contents List" should "match elements surrounded with [square brackets]" in {
     "[square brackets]" should matchContentsList

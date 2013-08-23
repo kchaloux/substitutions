@@ -2,10 +2,8 @@ package com.purloux.scala.substitutions
 import scala.util.parsing.combinator.RegexParsers
 import scala.language.postfixOps
 
-/** Functions for parsing the logical elements of a
- *  marked up replacement string
- */
-object SubstitutionParser extends RegexParsers {
+/** Parsing engine for a marked up substitution string */
+object SubstitutionParser extends RegexParsers with ParserPatterns {
   import SubstitutionElements._
   import util.matching.Regex
   override val skipWhitespace = false
@@ -23,38 +21,16 @@ object SubstitutionParser extends RegexParsers {
   private val closeParam  = ")"
   private val openAngle   = "<"
   private val closeAngle  = ">"
-  private val ampersand   = "&"
-  private val semicolon   = ";"
-  private val start       = "^".r
-  private val end         = "$".r
-  private val any         = ".*".r
-  private val space       = "\\s*".r
   private val ident       = "[\\w-]+".r
-  private val alphaSeq    = "[a-zA-Z]+".r
 
-  private def quote(elems : String*) : String     = "\\Q" + elems.mkString + "\\E"
-  private def withAny(elems : String*) : Regex    = ("["  + elems.mkString + "]").r
-  private def withoutAny(elems : String*) : Regex = ("[^" + elems.mkString + "]").r
-
-  def commands        = ( replacement | paramCommand | command )
-  def anyElement      = ( commands | escapeCharacter | escapeBlock | plainText )
-  def listElement     = ( commands | escapeCharacter | escapeBlock | plainListText )
-  def argumentElement  = ( commands | escapeCharacter | escapeBlock | plainArgumentText )
-  def anyEscapeElement = ( escapeText | escapeCharacter | inertAngleBlock )
-  def safeCommandSigil = withAny(sigil) <~ not(withAny(openBrace))
-  def safeEscapeSigil  = withAny(sigil) <~ not(withAny(openAngle))
-  def safeSigil        = withAny(sigil) <~ not(withAny(openBrace) | withAny(openAngle))
-  def safeAmpersand   = ampersand <~ not(alphaSeq ~ semicolon)
-
-  /** Convert a list of strings or characters into a single string */
-  def listToString(result: List[java.io.Serializable]): String = result match {
-    case (elems) => elems.map {
-      _ match {
-        case (l~r) => Seq(l, r).mkString("")
-        case (any) => any
-      }
-    }.mkString("")
-  }
+  private def commands        = ( replacement | paramCommand | command )
+  private def anyElement      = ( commands | escapeBlock | plainText )
+  private def listElement     = ( commands | escapeBlock | plainListText )
+  private def argumentElement  = ( commands | escapeBlock | plainArgumentText )
+  private def anyEscapeElement = ( escapeText | inertAngleBlock )
+  private def safeCommandSigil = withAny(sigil) <~ not(withAny(openBrace))
+  private def safeEscapeSigil  = withAny(sigil) <~ not(withAny(openAngle))
+  private def safeSigil        = withAny(sigil) <~ not(withAny(openBrace) | withAny(openAngle))
 
   /** Match a body of text consisting of a block of SubstitutionElements */
   def wholeText : Parser[ElementBlock] =
@@ -62,7 +38,7 @@ object SubstitutionParser extends RegexParsers {
 
   /** Match a single uninterrupted PlainText SubstitutionElement */
   def plainText : Parser[PlainText] =
-    rep1 (withoutAny(sigil, ampersand) | safeSigil | safeAmpersand ) ^^
+    rep1 (withoutAny(sigil) | safeSigil ) ^^
       { case (contents) => PlainText(listToString(contents)) }
 
   /** Match a single uninterrupted PlainText SubstitutionElement
@@ -104,6 +80,7 @@ object SubstitutionParser extends RegexParsers {
       { case (id ~ s ~ list) => Command(id, list) }
   }
 
+  /** Match a command or replacement identifier */
   def identifier : Parser[Identifier] =
     ident ^^ { case(name) => Identifier(name.toLowerCase) }
 
@@ -133,8 +110,4 @@ object SubstitutionParser extends RegexParsers {
   /** Match a top-level escape block (to be unescaped on final substitution */
   def escapeBlock : Parser[EscapeBlock] =
     (sigil ~ openAngle ~> (anyEscapeElement *) <~ closeAngle) ^^ EscapeBlock
-
-  /** Match a single XML-Style ampersand-escaped character */
-  def escapeCharacter : Parser[EscapeCharacter] =
-    ampersand ~> alphaSeq <~ semicolon ^^ EscapeCharacter
 }

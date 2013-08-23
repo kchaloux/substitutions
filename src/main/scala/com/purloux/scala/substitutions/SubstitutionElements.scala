@@ -56,10 +56,10 @@ object SubstitutionElements {
       case "gt" | "greater" => ">"
       case "br" | "break"   => "\n"
       case "at" | "sigil"   => "@"
-      case _ => s"&$contents;"
+      case _ => s"@$contents;"
     }
 
-    lazy val representation = s"&$contents;"
+    lazy val representation = s"@$contents;"
 
     def substitute(args : Map[String, Any], substitutor : Substitutor): String = representation
     def substituteEscaped(): String = representation

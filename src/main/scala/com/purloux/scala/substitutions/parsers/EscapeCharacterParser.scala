@@ -9,7 +9,7 @@ object EscapeCharacterParser extends RegexParsers with ParserPatterns {
   override val skipWhitespace = false
 
   // Basic syntax elements and Regular Expressions
-  private val sigil       = "&"
+  private val sigil       = "@"
   private val terminator  = ";"
   private val alphaSeq    = "[a-zA-Z]+".r
 

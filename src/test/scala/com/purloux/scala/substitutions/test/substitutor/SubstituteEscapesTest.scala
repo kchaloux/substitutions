@@ -41,39 +41,39 @@ class SubstituteEscapesTests extends FlatSpec {
     assert(result === "escape <one> <two> <three>")
   }
 
-  "An ampersand escape" should "replace &lt; with <" in
-    assert(substitutor.sub("&lt;") === "<")
+  "An ampersand escape" should "replace @lt; with <" in
+    assert(substitutor.sub("@lt;") === "<")
 
-  it should "replace &less; with <" in
-    assert(substitutor.sub("&less;") === "<")
+  it should "replace @less; with <" in
+    assert(substitutor.sub("@less;") === "<")
 
-  it should "replace &gt; with >" in
-    assert(substitutor.sub("&gt;") === ">")
+  it should "replace @gt; with >" in
+    assert(substitutor.sub("@gt;") === ">")
 
-  it should "replace &greater; with >" in
-    assert(substitutor.sub("&greater;") === ">")
+  it should "replace @greater; with >" in
+    assert(substitutor.sub("@greater;") === ">")
 
-  it should "replace &br; with a newline" in
-    assert(substitutor.sub("&br;") === "\n") 
+  it should "replace @br; with a newline" in
+    assert(substitutor.sub("@br;") === "\n") 
 
-  it should "replace &break; with a newline" in
-    assert(substitutor.sub("&break;") === "\n")
+  it should "replace @break; with a newline" in
+    assert(substitutor.sub("@break;") === "\n")
 
   it should "replace $at; with @" in
-    assert(substitutor.sub("&at;") === "@")
+    assert(substitutor.sub("@at;") === "@")
 
-  it should "replace &sigil; with @" in
-    assert(substitutor.sub("&sigil;") === "@")
+  it should "replace @sigil; with @" in
+    assert(substitutor.sub("@sigil;") === "@")
 
   it should "reproduce itself if not given any the above contents" in
-    assert(substitutor.sub("&fail;") === "&fail;")
+    assert(substitutor.sub("@fail;") === "@fail;")
 
   it should "replace itself from within the middle of plain text" in
-    assert(substitutor.sub("one &lt; two") === "one < two")
+    assert(substitutor.sub("one @lt; two") === "one < two")
 
   it should "replace itself when provided inside an escape block" in
-    assert(substitutor.sub("@<&lt;>") === "<")
+    assert(substitutor.sub("@<@lt;>") === "<")
 
   it should "replace itself when provided inside a nested escape block" in
-    assert(substitutor.sub("@<@<&lt;>>") === "@<<>")
+    assert(substitutor.sub("@<@<@lt;>>") === "@<<>")
 }

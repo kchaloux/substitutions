@@ -19,6 +19,7 @@ class Substitutor(rand : Random,
   import com.purloux.scala.utils.SafeOperations._
   import com.purloux.scala.substitutions.commands.PseudoRandom
   import com.purloux.scala.substitutions.SubstitutionExceptions._
+  import com.purloux.scala.substitutions.SpecialCases._
 
   /** @constructor automatic random number generator and default commands */
   def this() = this(new Random(), Map[String, Command](), Map[String, ParamCommand]())
@@ -112,17 +113,6 @@ class Substitutor(rand : Random,
    */
   def withRandomSeed(seed : Long) =
     new Substitutor(new Random(seed), commands, paramCommands)
-
-  /** Symbol to prevent automatic whitespace insertion
-   *  on newlines for multiline substitution mode
-   */
-  private val stopSpace = "_"
-
-  /** Special substitution values automatically registered */
-  private val specialCases = Map[String, Any](
-    stopSpace -> stopSpace,
-    "br"      -> "\n"
-  )
 
   /** Returns the substitution result of a string in
    *  standard mode, using given arguments for replacement values

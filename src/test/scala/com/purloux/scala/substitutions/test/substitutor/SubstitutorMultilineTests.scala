@@ -30,8 +30,9 @@ class SubstitutorMultilineTests extends FlatSpec {
         |murky_
         |dank]}
       dungeon,
-      drawing @{pro_pos} @{weapon} at the ready.
-      @{br}_
+      drawing @{pro_pos} @{weapon} at the ready._
+      @break;_
+      @break;_
       Suddenly, @{pro_sub} is ambushed by
       @{plural  (@{monster_number})
         [a lone @{monster}
@@ -49,7 +50,7 @@ class SubstitutorMultilineTests extends FlatSpec {
       "monster_number" -> 5,
       "monster" -> "goblin"))
 
-    val expected = "She steps into the gloomy dungeon, drawing her bow at the ready. \nSuddenly, she is ambushed by a gaggle of goblins!"
+    val expected = "She steps into the gloomy dungeon, drawing her bow at the ready.\n\nSuddenly, she is ambushed by a gaggle of goblins!"
     assert(result === expected)
   }
 }

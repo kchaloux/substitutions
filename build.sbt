@@ -1,6 +1,6 @@
 name := "substitutions"
 
-version := "0.1.33"
+version := "0.1.34"
 
 scalaVersion := "2.10.0"
 

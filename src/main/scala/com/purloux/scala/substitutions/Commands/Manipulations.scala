@@ -5,6 +5,7 @@ object Manipulations {
   import com.purloux.scala.substitutions.commands.CommandReporting._
   import com.purloux.scala.substitutions.SubstitutionExceptions._
   import com.purloux.scala.substitutions.SubstitutionCommands._
+  import com.purloux.scala.substitutions.commands.Define._
   import com.purloux.scala.utils.SafeOperations._
 
   /** Returns a string joining each argument, separated by
@@ -26,24 +27,15 @@ object Manipulations {
       contents.filterNot(_.isEmpty).mkString(args(0))
   }
 
-  /** Returns the values of a list of arguments updated
-   *  with a provided manipulation function
-   *
-   *  @param fn function to update strings with
-   *  @param contents argument list to apply manipulations to
-   */
-  private val updateWith = (fn: (String) => String) => (contents: Seq[String]) =>
-    contents.map(fn).mkString(" ")
-
   /** Returns the provided arguments capitalized */
-  val caps = updateWith(_.toLowerCase.capitalize)
+  val caps = command { _.toLowerCase.capitalize }
 
   /** Returns the provided arguments in uppercase */
-  val upper = updateWith(_.toUpperCase)
+  val upper = command { _.toUpperCase }
 
   /** Returns the provided arguments in lowercase */
-  val lower = updateWith(_.toLowerCase)
+  val lower = command { _.toLowerCase }
 
   /** Returns the provided arguments individually reversed */
-  val reverse = updateWith(_.reverse)
+  val reverse = command { _.reverse }
 }

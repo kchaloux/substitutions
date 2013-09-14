@@ -52,7 +52,7 @@ class ImplicitSubstitutionsSpec extends FlatSpec {
     val template = "@{title[one two three]}"
     implicit val sub = new Substitutor().withCommand("title", { 
       _.map {
-        _.split(" ").map {
+        _.toString.split(" ").map {
           _.toLowerCase.capitalize
         }
         .mkString(" ")

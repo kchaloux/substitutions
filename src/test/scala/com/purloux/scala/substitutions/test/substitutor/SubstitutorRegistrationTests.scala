@@ -6,7 +6,7 @@ class SubstitutorRegistrationTests extends FlatSpec {
   "A Substitutor" should "successfully register new commands at runtime" in {
     val subber = new Substitutor().withCommand("titlecase", { 
       _.map { 
-        _.split(" ").map {
+        _.toString.split(" ").map {
           _.toLowerCase.capitalize
         }
         .mkString(" ")
@@ -22,9 +22,13 @@ class SubstitutorRegistrationTests extends FlatSpec {
 
   it should "successfully register new parameterized commands at runtime" in {
     val subber = new Substitutor().withParamCommand("first", {
-      (args : Seq[String]) => (contents : Seq[String]) => {
-        val amount = args(0).toInt
-        contents.map(_.take(amount)).mkString(" ")
+      (args : Seq[Any]) => (contents : Seq[Any]) => {
+        val amount = args(0) match {
+          case i:Int    => i
+          case s:String => s.toInt
+          case _        => 0
+        }
+        contents.map(_.toString.take(amount)).mkString(" ")
       }
     })
 

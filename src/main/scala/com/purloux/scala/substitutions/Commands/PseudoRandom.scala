@@ -13,8 +13,8 @@ object PseudoRandom {
    *  @param rand pseudo random number generator
    *  @param contents collection of elements to pull from
    */
-  val randElement = (rand : Random) => (contents : Seq[String]) => 
-    contents(rand.nextInt(contents.length))
+  val randElement = (rand : Random) => (contents : Seq[Any]) => 
+    contents(rand.nextInt(contents.length)).toString
 
   /** Returns a random BigInt from a range of BigInts 
    *
@@ -24,8 +24,8 @@ object PseudoRandom {
    */
   val randNumber =
     (rand : Random) =>
-    (args : Seq[String]) =>
-    (contents : Seq[String]) =>
+    (args : Seq[Any]) =>
+    (contents : Seq[Any]) =>
   {
     val input = showCommand("rand")(args)(contents)
     if (args.length != 2) {
@@ -38,8 +38,8 @@ object PseudoRandom {
     }
     else {
       try {
-        val boundA = BigInt(args(0).trim)
-        val boundB = BigInt(args(1).trim)
+        val boundA = BigInt(args(0).toString.trim)
+        val boundB = BigInt(args(1).toString.trim)
 
         val low = boundA.min(boundB)
         val high = boundA.max(boundB)

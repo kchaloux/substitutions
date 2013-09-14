@@ -29,7 +29,7 @@ case class ParserMatcher[C <: RegexParsers](val parserCombinator : C) {
     }
   }
 
-  def MatchValidatedParser[E <: SubstitutionElement]
+  def MatchValidatedParser[E <: SubstitutionElement[Any]]
     (parserName : String)
     (getParser : C => parserCombinator.Parser[E])
     (validate : (E, String) => Boolean): Matcher[String] =
@@ -47,7 +47,7 @@ case class ParserMatcher[C <: RegexParsers](val parserCombinator : C) {
     }
   }
 
-  def MatchParser[E <: SubstitutionElement]
+  def MatchParser[E <: SubstitutionElement[Any]]
     (parserName : String)
     (getParser : C => parserCombinator.Parser[E]): Matcher[String] =
   { 

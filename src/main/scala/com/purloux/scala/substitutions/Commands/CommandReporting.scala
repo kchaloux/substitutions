@@ -12,8 +12,8 @@ object CommandReporting {
    */
   val showCommand =
     (id : String) =>
-    (args: Seq[String]) =>
-    (contents: Seq[String]) =>
+    (args: Seq[Any]) =>
+    (contents: Seq[Any]) =>
   {
     val paramList = if (args.isEmpty) "" else "(" + args.mkString(",") + ")"
     val argList = if (contents.isEmpty) "" else "[" + contents.mkString("|") + "]"

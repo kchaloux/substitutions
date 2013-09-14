@@ -22,8 +22,8 @@ object Generations {
    *  @param contents list of elements to duplicate
    */
   val duplicate =
-    (args : Seq[String]) =>
-    (contents : Seq[String]) =>
+    (args : Seq[Any]) =>
+    (contents : Seq[Any]) =>
   {
     val input = showCommand("dup")(args)(contents)
     if (args.length < 1) {
@@ -35,19 +35,25 @@ object Generations {
       throw new ParamCommandInvocationException(message, input)
     }
     else {
-      val delim1 = if (args.length >= 2) args(1) else ""
-      val delim2 = if (args.length >= 3) args(2) else ""
-      (args(0) safePerform (_.toInt)) match {
-        case Some(value) => {
-          if (value > 0)
-            contents.map(Stream.continually(_).take(value).mkString(delim1)).mkString(delim2)
-          else
-            ""
+      val delim1 = if (args.length >= 2) args(1).toString else ""
+      val delim2 = if (args.length >= 3) args(2).toString else ""
+
+      def makeDuplicates(value : Int) = {
+        if (value > 0)
+          contents.map(Stream.continually(_).take(value).mkString(delim1)).mkString(delim2)
+        else
+          ""
+      }
+
+      val errorMessage = "invalid arguments ((int, str?, str?) expected)"
+
+      args(0) match {
+        case i:Int => makeDuplicates(i)
+        case s:String => s.safePerform(_.toInt) match {
+          case Some(value) => makeDuplicates(value)
+          case _ => throw new ParamCommandInvocationException(errorMessage, input)
         }
-        case None => { 
-          val message = "invalid arguments ((int, str?, str?) expected)"
-          throw new ParamCommandInvocationException(message, input)
-        }
+        case _ => throw new ParamCommandInvocationException(errorMessage, input)
       }
     }
   }

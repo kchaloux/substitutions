@@ -2,16 +2,17 @@ package com.purloux.scala.substitutions
 
 /** Type aliases for command functions */
 object CommandTypes {
-  type Command = Seq[String] => String
-  type ParamCommand = Seq[String] => Seq[String] => String
+  type Command = Seq[Any] => String
+  type ParamCommand = Seq[Any] => Seq[Any] => String
 }
 
 /** Defines commands used to manipulate text arguments */
 object SubstitutionCommands {
   import com.purloux.scala.substitutions.commands._
+  import com.purloux.scala.substitutions.CommandTypes._
 
   /** Table of unparameterized command-id -> manipulation-functions */
-  private val commands = Map[String, Seq[String] => String](
+  private val commands = Map[String, Command](
     "caps"    -> Manipulations.caps,
     "upper"   -> Manipulations.upper,
     "lower"   -> Manipulations.lower,
@@ -19,7 +20,7 @@ object SubstitutionCommands {
   )
 
   /** Table of parameterized command-id -> manipulation-functions */
-  private val paramCommands = Map[String, Seq[String] => Seq[String] => String](
+  private val paramCommands = Map[String, ParamCommand](
     "plural"    -> Branching.plural,
     "select"    -> Branching.select,
     "if"        -> Branching.ifChoice,
@@ -39,7 +40,7 @@ object SubstitutionCommands {
    *
    *  @param id identifier of the command to retrieve
    */
-  def getCommand(id : String) : Option[(Seq[String] => String)] =
+  def getCommand(id : String) : Option[Command] =
     commands.get(id)
 
   /** Returns an Option for a parameterized command function
@@ -48,6 +49,6 @@ object SubstitutionCommands {
    *
    *  @param id identifier of the command to retrieve
    */
-  def getParamCommand(id : String) : Option[(Seq[String] => Seq[String] => String)] =
+  def getParamCommand(id : String) : Option[ParamCommand] =
     paramCommands.get(id)
 }

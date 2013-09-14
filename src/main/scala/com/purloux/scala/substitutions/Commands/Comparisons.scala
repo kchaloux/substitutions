@@ -17,9 +17,9 @@ object Comparisons {
    */
   private val createComparison =
     (id : String) =>
-    (args : Seq[String]) =>
-    (contents : Seq[String]) =>
-    (func : (String, String) => String) =>
+    (args : Seq[Any]) =>
+    (contents : Seq[Any]) =>
+    (func : (Any, Any) => String) =>
   {
     val input = showCommand(id)(args)(contents)
     if (args.length != 2)
@@ -40,20 +40,29 @@ object Comparisons {
    */
   private val createNumericComparison =
     (id : String) =>
-    (args : Seq[String]) =>
-    (contents : Seq[String]) =>
+    (args : Seq[Any]) =>
+    (contents : Seq[Any]) =>
     (compare : (Double, Double) => Boolean) =>
   {
-    createComparison(id)(args)(contents){ (l, r) => {
-      (l.safePerform(_.toDouble), r.safePerform(_.toDouble)) match {
-        case (Some(left), Some(right)) => compare(left, right).toString
-        case _ => {
-          val message = "invalid arguments ((double, double) expected)"
-          val input = showCommand(id)(args)(contents)
-          throw new ParamCommandInvocationException(message, input)
+    createComparison(id)(args)(contents){ 
+      (l, r) => {
+        val input = showCommand(id)(args)(contents)
+        val errorMessage = "invalid arguments ((double, double) expected)"
+        
+        def getDouble(v : Any) = v match {
+          case d:Double => d
+          case s:String => s.safePerform(_.toDouble) match {
+            case Some(value) => value
+            case None => throw ParamCommandInvocationException(errorMessage, input)
+          }
+          case _ => throw ParamCommandInvocationException(errorMessage, input)
         }
+
+        val left = getDouble(l)
+        val right = getDouble(r)
+        compare(left, right).toString
       }
-    }}
+    }
   }
 
   /** Returns "true" or "false" depending on the equality of two
@@ -62,9 +71,9 @@ object Comparisons {
    *  @param args exactly two values to compare for equality
    *  @param contents argument list (unused)
    */
-  val equal = (args : Seq[String]) => (contents : Seq[String]) =>
+  val equal = (args : Seq[Any]) => (contents : Seq[Any]) =>
     createComparison("eq")(args)(contents){
-      (l, r) => { (l.trim.toLowerCase == r.trim.toLowerCase).toString }
+      (l, r) => { (l.toString.trim.toLowerCase == r.toString.trim.toLowerCase).toString }
     }
 
   /** Returns "true" or "false" if the first argument has a lesser
@@ -73,7 +82,7 @@ object Comparisons {
    *  @param args exactly two numerical values to compare
    *  @param contents argument list (unused)
    */
-  val lessThan = (args : Seq[String]) => (contents : Seq[String]) =>
+  val lessThan = (args : Seq[Any]) => (contents : Seq[Any]) =>
     createNumericComparison("lt")(args)(contents){ (l, r) => l < r }
 
   /** Returns "true" or "false" if the first argument has a greater
@@ -82,7 +91,7 @@ object Comparisons {
    *  @param args exactly two numeric values to compare
    *  @param contents argument list (unused)
    */
-  val greaterThan = (args : Seq[String]) => (contents : Seq[String]) =>
+  val greaterThan = (args : Seq[Any]) => (contents : Seq[Any]) =>
     createNumericComparison("gt")(args)(contents){ (l, r) => l > r }
 
   /** Returns "true" or "false" if the first argument has a lesser
@@ -91,7 +100,7 @@ object Comparisons {
    *  @param args exactly two numerical values to compare
    *  @param contents argument list (unused)
    */
-  val lessOrEqual = (args : Seq[String]) => (contents : Seq[String]) =>
+  val lessOrEqual = (args : Seq[Any]) => (contents : Seq[Any]) =>
     createNumericComparison("lt")(args)(contents){ (l, r) => l <= r }
 
   /** Returns "true" or "false" if the first argument has a greater
@@ -100,7 +109,7 @@ object Comparisons {
    *  @param args exactly two numerical values to compare
    *  @param contents argument list (unused)
    */
-  val greaterOrEqual = (args : Seq[String]) => (contents : Seq[String]) =>
+  val greaterOrEqual = (args : Seq[Any]) => (contents : Seq[Any]) =>
     createNumericComparison("gt")(args)(contents){ (l, r) => l >= r }
 
   /** Returns the inverse of a "true" or "false" argument
@@ -109,7 +118,7 @@ object Comparisons {
    *  @param args list of parameters provided to the parent "notComparison" function
    *  @param contents argument list (unused)
    */
-  val notInversion = (value : String) => (args : Seq[String]) => (contents : Seq[String]) => {
+  val notInversion = (value : String) => (args : Seq[Any]) => (contents : Seq[Any]) => {
     if (value == "true")
       "false"
     else if (value == "false")
@@ -128,7 +137,7 @@ object Comparisons {
    *    or the id of a boolean function, followed by two comparison values
    *  @param contents arguments list (unused)
    */
-  val notComparison = (args : Seq[String]) => (contents : Seq[String]) => {
+  val notComparison = (args : Seq[Any]) => (contents : Seq[Any]) => {
     val input = showCommand("not")(args)(contents)
     if (contents.length != 0) {
       val message = "invalid content blocks (0 allowed)"
@@ -136,14 +145,14 @@ object Comparisons {
     }
     else {
       if (args.length == 3) {
-        val funcId = args(0)
+        val funcId = args(0).toString
         getParamCommand(funcId) match {
           case Some(func) => notInversion(func(args.drop(1))(contents))(args)(contents)
           case _          => throw new UnknownParamCommandException(funcId)
         }
       }
       else if (args.length == 1) {
-        notInversion(args(0))(args)(contents)
+        notInversion(args(0).toString)(args)(contents)
       }
       else {
         val message = "invalid arguments (1 or 3 required)"

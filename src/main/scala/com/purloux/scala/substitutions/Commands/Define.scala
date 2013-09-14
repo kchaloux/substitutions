@@ -11,11 +11,11 @@ object Define {
    *  @param delim delimiter used to join the results together
    *  @param fn function used to transform each string
    */
-  def command(delim : String)(fn : String => String) =
-    (contents : Seq[String]) => contents.map(fn).mkString(delim)
+  def command(delim : String)(fn : Any => String) =
+    (contents : Seq[Any]) => contents.map(fn).mkString(delim)
   
   /** As command(delim)(fn), using a single space as delimiter */
-  def command(fn : String => String): (Seq[String] => String) =
+  def command(fn : Any => String): (Seq[Any] => String) =
     command(" ")(fn)
 
   /** Returns a function that maps a given transformation over a 
@@ -26,11 +26,11 @@ object Define {
    *  @param delim delimiter used to join the results together
    *  @param fn function used to transform each string
    */
-  def paramCommand(delim : String)(fn : (Seq[String], String) => String) =
-    (args : Seq[String]) => (contents : Seq[String]) =>
+  def paramCommand(delim : String)(fn : (Seq[Any], Any) => String) =
+    (args : Seq[Any]) => (contents : Seq[Any]) =>
       contents.map(str => fn(args, str)).mkString(delim)
 
   /** As paramCommand(delim)(fn), using a single space as delimiter */
-  def paramCommand(fn : (Seq[String], String) => String): (Seq[String] => Seq[String] => String) =
+  def paramCommand(fn : (Seq[Any], Any) => String): (Seq[Any] => Seq[Any] => String) =
     paramCommand(" ")(fn) 
 }

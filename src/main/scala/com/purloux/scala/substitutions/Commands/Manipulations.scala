@@ -15,8 +15,8 @@ object Manipulations {
    *  @contents list of arguments to join together 
    */
   val join = 
-    (args : Seq[String]) =>
-    (contents : Seq[String]) =>
+    (args : Seq[Any]) =>
+    (contents : Seq[Any]) =>
   {
     val input = showCommand("join")(args)(contents)
     if (args.length != 1) {
@@ -24,18 +24,18 @@ object Manipulations {
       throw new ParamCommandInvocationException(message, input)
     }
     else
-      contents.filterNot(_.isEmpty).mkString(args(0))
+      contents.map(_.toString).filterNot(_.isEmpty).mkString(args(0).toString)
   }
 
   /** Returns the provided arguments capitalized */
-  val caps = command { _.toLowerCase.capitalize }
+  val caps = command { _.toString.toLowerCase.capitalize }
 
   /** Returns the provided arguments in uppercase */
-  val upper = command { _.toUpperCase }
+  val upper = command { _.toString.toUpperCase }
 
   /** Returns the provided arguments in lowercase */
-  val lower = command { _.toLowerCase }
+  val lower = command { _.toString.toLowerCase }
 
   /** Returns the provided arguments individually reversed */
-  val reverse = command { _.reverse }
+  val reverse = command { _.toString.reverse }
 }

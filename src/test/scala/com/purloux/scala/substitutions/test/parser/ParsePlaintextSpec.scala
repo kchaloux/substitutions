@@ -16,18 +16,26 @@ class ParsePlaintextSpec extends FlatSpec with ShouldMatchers {
   }
 
   it should "not match sequences containing adjacent @{ characters" in {
-    "abc @{ def" should not (matchPlainText)
+    "abc@{def" should not (matchPlainText)
   }
 
   it should "not match sequences containing adjacent @< characters" in {
-    "abc @< def" should not (matchPlainText)
+    "abc@<def" should not (matchPlainText)
   }
 
   it should "match sequences containing non-adjacent @ and { characters" in {
-    "@ and {" should matchPlainText
+    "@and{" should matchPlainText
   }
 
   it should "match sequences containing non-adjacent @ and < characters" in {
-    "@ and <" should matchPlainText
+    "@and<" should matchPlainText
+  }
+
+  it should "not match sequences containing only whitespace" in {
+    "   " should not (matchPlainText)
+  }
+
+  it should "not match sequences containing a mix of plaintext and whitespace" in {
+    "one two three" should not (matchPlainText)
   }
 }

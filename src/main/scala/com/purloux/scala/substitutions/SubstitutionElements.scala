@@ -31,6 +31,20 @@ object SubstitutionElements {
     def substituteEscaped(): String = contents
   }
 
+  /** Plaintext element for whitespace-only characters with no substitution logic */
+  case class WhiteSpace(contents : String) extends SubstitutionElement[String] {
+    def substitute(args : Map[String, Any], substitutor : Substitutor): String = contents
+    def substituteEscaped(): String = contents
+  }
+
+  /** Toplevel block of all elements contained within a template */
+  case class WholeText(contents : ElementBlock) extends SubstitutionElement[String] {
+    def substitute(args : Map[String, Any], substitutor : Substitutor): String = 
+      contents.substitute(args, substitutor).mkString
+    
+    def substituteEscaped(): String = contents.substituteEscaped
+  }
+
   /** Block of potentially nested escaped elements */
   case class EscapeBlock(elements : Seq[SubstitutionElement[Any]]) extends SubstitutionElement[String] {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String =
@@ -73,9 +87,10 @@ object SubstitutionElements {
   }
 
   /** Full set of parsed Substitution Elements in sequence */
-  case class ElementBlock(elements: Seq[SubstitutionElement[Any]]) extends SubstitutionElement[String] {
-    def substitute(args : Map[String, Any], substitutor : Substitutor): String =
-      elements.map(_.substitute(args, substitutor)).mkString
+  case class ElementBlock(elements: Seq[SubstitutionElement[Any]]) extends SubstitutionElement[Seq[Any]] {
+    def substitute(args : Map[String, Any], substitutor : Substitutor): Seq[Any] = {
+      elements.map(_.substitute(args, substitutor))
+    }
 
     def substituteEscaped(): String =
       elements.map(_.substituteEscaped).mkString
@@ -85,9 +100,10 @@ object SubstitutionElements {
   }
 
   /** List of separate parsed ElementBlocks (such as an Argument List) */
-  case class ElementsList(blocks : Seq[ElementBlock]) extends SubstitutionElement[String] {
-    def substitute(args : Map[String, Any], substitutor : Substitutor): String =
-      blocks.map(_.substitute(args, substitutor)).mkString
+  case class ElementsList(blocks : Seq[ElementBlock]) extends SubstitutionElement[Seq[Seq[Any]]] {
+    def substitute(args : Map[String, Any], substitutor : Substitutor): Seq[Seq[Any]] = {
+      blocks.map(_.substitute(args, substitutor))
+    }
 
     def substituteEscaped(): String =
       blocks.map(_.substituteEscaped).mkString
@@ -111,7 +127,7 @@ object SubstitutionElements {
    *  several possible strings, provided as an arguments list */
   case class Command(ident : Identifier, contents: ElementsList) extends SubstitutionElement[String] {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String = {
-      val replacedContents = contents.blocks.map(_.substitute(args, substitutor))
+      val replacedContents = contents.blocks.map(_.substitute(args, substitutor).mkString)
       val transform = substitutor.getCommand(ident.name.toLowerCase) match {
         case Some(fn) => fn
         case None     => showCommand(ident.name.toLowerCase)(Seq[String]())
@@ -132,8 +148,18 @@ object SubstitutionElements {
     extends SubstitutionElement[String]
   {
     def substitute(args : Map[String, Any], substitutor : Substitutor): String = {
-      val replacedContents = contents.blocks.map(_.substitute(args, substitutor))
-      val replacedParams = params.blocks.map(_.substitute(args, substitutor))
+      val replacedParams = { 
+        params.blocks.map { (block) =>
+          val withoutWhiteSpace = block.elements.filterNot(_.isInstanceOf[WhiteSpace])
+          if (withoutWhiteSpace.length == 1) {
+            withoutWhiteSpace(0).substitute(args, substitutor)
+          } else {
+            block.elements.map(_.substitute(args, substitutor)).mkString
+          }
+        }
+      }
+      
+      val replacedContents = contents.blocks.map(_.substitute(args, substitutor).mkString)
       val transform = substitutor.getParamCommand(ident.name.toLowerCase) match {
         case Some(fn) => fn(replacedParams)
         case None     => showCommand(ident.name.toLowerCase)(replacedParams)

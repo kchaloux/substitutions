@@ -22,30 +22,40 @@ object SubstitutionParser extends RegexParsers with ParserPatterns {
   private val openAngle   = "<"
   private val closeAngle  = ">"
   private val ident       = "[\\w-]+".r
+  private val singleSpace = " "
+  private val lineFeed    = "\n"
+  private val tabChar     = "\t"
+  private val newLine     = "(\r)?\n".r
 
   private def commands        = ( replacement | paramCommand | command )
-  private def anyElement      = ( commands | escapeBlock | plainText )
-  private def listElement     = ( commands | escapeBlock | plainListText )
-  private def argumentElement  = ( commands | escapeBlock | plainArgumentText )
+  private def anyElement      = ( commands | escapeBlock | plainText | whiteSpaceText )
+  private def listElement     = ( commands | escapeBlock | plainListText | whiteSpaceText )
+  private def argumentElement  = ( commands | escapeBlock | plainArgumentText | whiteSpaceText )
   private def anyEscapeElement = ( escapeText | inertAngleBlock )
   private def safeCommandSigil = withAny(sigil) <~ not(withAny(openBrace))
   private def safeEscapeSigil  = withAny(sigil) <~ not(withAny(openAngle))
   private def safeSigil        = withAny(sigil) <~ not(withAny(openBrace) | withAny(openAngle))
 
   /** Match a body of text consisting of a block of SubstitutionElements */
-  def wholeText : Parser[ElementBlock] =
-    start ~> (anyElement *) <~ end ^^ { ElementBlock }
+  def wholeText : Parser[WholeText] =
+    start ~> (anyElement *) <~ end ^^ { case(elements) => WholeText(ElementBlock(elements)) }
 
   /** Match a single uninterrupted PlainText SubstitutionElement */
   def plainText : Parser[PlainText] =
-    rep1 (withoutAny(sigil) | safeSigil ) ^^
+    rep1 (withoutAny(sigil, singleSpace, lineFeed, tabChar) | safeSigil ) ^^
       { case (contents) => PlainText(listToString(contents)) }
+
+  /** Match a single uninterrupted WhiteSpace substitutionElement */
+  def whiteSpaceText : Parser[WhiteSpace] =
+    rep1 (singleSpace | newLine | tabChar) ^^
+      { case (contents) => WhiteSpace(listToString(contents)) }
 
   /** Match a single uninterrupted PlainText SubstitutionElement
    *  excluding special characters designated for lists, delimiters and commands
    */
   def plainListText : Parser[PlainText] = {
-    rep1 ( withoutAny(sigil, quote(openList, closeList, delimList)) | safeSigil ) ^^
+    rep1 ( withoutAny(sigil, singleSpace, lineFeed, tabChar,
+           quote(openList, closeList, delimList)) | safeSigil ) ^^
       { case(contents) => PlainText(listToString(contents)) }
   }
 
@@ -53,7 +63,8 @@ object SubstitutionParser extends RegexParsers with ParserPatterns {
    *  excluding special characters designated for parameter lists, delimiters and commands
    */
   def plainArgumentText : Parser[PlainText] = {
-    (rep1 ( withoutAny(sigil, quote(openParam, closeParam, delimParam)) | safeSigil )) ^^
+    (rep1 ( withoutAny(sigil, singleSpace, lineFeed, tabChar,
+            quote(openParam, closeParam, delimParam)) | safeSigil )) ^^
       {  case(contents) => PlainText(listToString(contents)) }
   }
 

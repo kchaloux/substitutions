@@ -125,9 +125,13 @@ class Substitutor(rand : Random,
 
     SubstitutionParser.parseAll(SubstitutionParser.wholeText, input) match {
       case SubstitutionParser.Success(a, _) => {
-        SubstitutionParser.parseAll(SubstitutionParser.wholeText, a.substitute(arguments, this)) match {
+        val substituted = a.substitute(arguments, this)
+
+        SubstitutionParser.parseAll(SubstitutionParser.wholeText, substituted) match {
           case SubstitutionParser.Success(b, _) => {
-            EscapeCharacterParser.parseAll(EscapeCharacterParser.wholeText, b.substituteEscaped) match {
+            val escaped = b.substituteEscaped
+
+            EscapeCharacterParser.parseAll(EscapeCharacterParser.wholeText, escaped) match {
               case EscapeCharacterParser.Success(c, _) => c.substituteEscapedCharacters
               case EscapeCharacterParser.NoSuccess(msg, _) => throw new SubstitutionParserException(msg, input)
             }

@@ -5,6 +5,7 @@ object Generations {
   import com.purloux.scala.substitutions.commands.CommandReporting._
   import com.purloux.scala.substitutions.SubstitutionExceptions._
   import com.purloux.scala.substitutions.SubstitutionCommands._
+  import com.purloux.scala.substitutions.utils.Extractors._
   import com.purloux.scala.utils.SafeOperations._
 
   /** Returns a string duplicated n times, optionally delimited
@@ -48,12 +49,8 @@ object Generations {
       val errorMessage = "invalid arguments ((int, str?, str?) expected)"
 
       args(0) match {
-        case i:Int => makeDuplicates(i)
-        case s:String => s.safePerform(_.toInt) match {
-          case Some(value) => makeDuplicates(value)
-          case _ => throw new ParamCommandInvocationException(errorMessage, input)
-        }
-        case _ => throw new ParamCommandInvocationException(errorMessage, input)
+        case WholeNumber(n) => makeDuplicates(n.toInt)
+        case _ => throw ParamCommandInvocationException(errorMessage, input)
       }
     }
   }

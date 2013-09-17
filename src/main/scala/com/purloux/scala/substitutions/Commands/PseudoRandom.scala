@@ -5,6 +5,7 @@ object PseudoRandom {
   import com.purloux.scala.substitutions.commands.CommandReporting._
   import com.purloux.scala.substitutions.SubstitutionExceptions._
   import com.purloux.scala.substitutions.SubstitutionCommands._
+  import com.purloux.scala.substitutions.utils.Extractors._
   import com.purloux.scala.utils.SafeOperations._
   import scala.util.Random
 
@@ -37,27 +38,24 @@ object PseudoRandom {
       throw new ParamCommandInvocationException(message, input)
     }
     else {
-      try {
-        val boundA = BigInt(args(0).toString.trim)
-        val boundB = BigInt(args(1).toString.trim)
+      (args(0), args(1)) match {
+        case (WholeNumber(boundA), WholeNumber(boundB)) => {
+          val low = boundA.min(boundB)
+          val high = boundA.max(boundB)
 
-        val low = boundA.min(boundB)
-        val high = boundA.max(boundB)
-
-        val range = high - low + 1
-        val result = (BigInt(255, rand) % range)
-        val output = result match {
-          case n if n >= range  => high
-          case n if n <= 0      => low
-          case _                => result + low
+          val range = high - low + 1
+          val result = (BigInt(255, rand) % range)
+          val output = result match {
+            case n if n >= range  => high
+            case n if n <= 0      => low
+            case _                => result + low
+          }
+          output.toString
         }
-        output.toString
-      } 
-      catch {
-        case nf:NumberFormatException => {  
+        case _ => {
           val message = "invalid parameters ((int, int) expected)"
           throw new ParamCommandInvocationException(message, input)
-        }
+        } 
       }
     }
   }

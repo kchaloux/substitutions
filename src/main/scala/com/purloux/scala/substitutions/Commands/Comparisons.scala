@@ -5,6 +5,7 @@ object Comparisons {
   import com.purloux.scala.substitutions.commands.CommandReporting._
   import com.purloux.scala.substitutions.SubstitutionExceptions._
   import com.purloux.scala.substitutions.SubstitutionCommands._
+  import com.purloux.scala.substitutions.utils.Extractors._
   import com.purloux.scala.utils.SafeOperations._
 
   /** Returns a function that compares two values,
@@ -49,18 +50,10 @@ object Comparisons {
         val input = showCommand(id)(args)(contents)
         val errorMessage = "invalid arguments ((double, double) expected)"
         
-        def getDouble(v : Any) = v match {
-          case d:Double => d
-          case s:String => s.safePerform(_.toDouble) match {
-            case Some(value) => value
-            case None => throw ParamCommandInvocationException(errorMessage, input)
-          }
+        (l, r) match {
+          case (FloatingNumber(a), FloatingNumber(b)) => compare(a, b).toString
           case _ => throw ParamCommandInvocationException(errorMessage, input)
         }
-
-        val left = getDouble(l)
-        val right = getDouble(r)
-        compare(left, right).toString
       }
     }
   }
